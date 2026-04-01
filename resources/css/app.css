@@ -1,11 +1,374 @@
-@import 'tailwindcss';
+/* === SIDEBAR MAHASISWA RESPONSIF === */
+.sidebar-mahasiswa {
+    background: #fff;
+    border-right: 2px solid #eee;
+    min-width: 220px;
+    padding: 32px 0 0 0;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    box-shadow: 2px 0 8px 0 #ececec;
+    transition: transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.2s;
+    transform: translateX(0);
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.sidebar-mahasiswa .sidebar-header {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #a259e6;
+    padding: 0 32px 30px 32px;
+    letter-spacing: 0.5px;
+}
+.sidebar-mahasiswa .sidebar-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.sidebar-mahasiswa .sidebar-menu li {
+    margin-bottom: 8px;
+}
+.sidebar-mahasiswa .sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 32px;
+    font-weight: 700;
+    color: #222;
+    border-radius: 8px 0 0 8px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    font-size: 1.08rem;
+}
+.sidebar-mahasiswa .sidebar-menu .active a, .sidebar-mahasiswa .sidebar-menu a:hover {
+    background: #e9d6fa;
+    color: #a259e6;
+}
+.sidebar-mahasiswa .sidebar-icon {
+    font-size: 1.2em;
+    min-width: 22px;
+    text-align: center;
+}
+.sidebar-mahasiswa .sidebar-bottom {
+    margin-top: auto;
+    padding: 24px 0 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.sidebar-mahasiswa .sidebar-settings,
+.sidebar-mahasiswa .sidebar-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 32px;
+    color: #a259e6;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 8px 0 0 8px;
+    transition: background 0.2s, color 0.2s;
+}
+.sidebar-mahasiswa .sidebar-settings:hover,
+.sidebar-mahasiswa .sidebar-logout:hover {
+    background: #f6f0ff;
+    color: #7c3aed;
+}
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+/* Hamburger Button */
+.sidebar-hamburger {
+    display: none;
+    position: fixed;
+    top: 24px;
+    left: 18px;
+    z-index: 200;
+    width: 38px;
+    height: 38px;
+    background: #fff;
+    border: 2px solid #a259e6;
+    border-radius: 8px;
+    box-shadow: 2px 2px 0 #a259e6;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+.sidebar-hamburger span {
+    display: block;
+    width: 22px;
+    height: 3px;
+    background: #a259e6;
+    border-radius: 2px;
+    transition: all 0.2s;
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+@media (max-width: 900px) {
+    .sidebar-mahasiswa {
+        transform: translateX(-110%);
+        box-shadow: none;
+    }
+    .sidebar-mahasiswa.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 16px 0 #a259e6;
+    }
+    .sidebar-hamburger {
+        display: flex;
+    }
+    .main-layout {
+        padding-left: 0 !important;
+    }
+}
+
+@media (min-width: 901px) {
+    .sidebar-hamburger {
+        display: none !important;
+    }
+    .sidebar-mahasiswa {
+        transform: translateX(0) !important;
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 100;
+    }
+    .main-layout {
+        padding-left: 240px !important;
+    }
+}
+/* Hide sidebar on login pages */
+body.login-page .sidebar {
+    display: none !important;
+}
+/* Hide sidebar on landing page */
+body.landing-page .sidebar {
+    display: none !important;
+}
+/* Hide sidebar on mahasiswa dashboard, pengajuan, tracking if needed */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;700;900&family=Montserrat:wght@700;900&display=swap');
+
+body, html {
+    font-family: 'Instrument Sans', 'Montserrat', Arial, sans-serif;
+    font-weight: 400;
+    background: #fafbfc;
+    color: #181818;
+    font-size: 16px;
+    letter-spacing: 0.01em;
+}
+
+main, .main-content {
+    padding: 0 32px 32px 32px;
+}
+
+/* SIDEBAR */
+.sidebar {
+    background: #fff;
+    border-right: 2px solid #eee;
+    min-width: 220px;
+    padding: 32px 0 0 0;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 10;
+    box-shadow: 2px 0 8px 0 #ececec;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.sidebar li {
+    margin-bottom: 18px;
+}
+.sidebar a, .sidebar .active {
+    font-weight: 700;
+    color: #a259e6;
+    text-decoration: none;
+    font-size: 1.1rem;
+    display: block;
+    padding: 10px 32px 10px 32px;
+    border-radius: 8px 0 0 8px;
+    transition: background 0.2s;
+}
+.sidebar .active, .sidebar a:hover {
+    background: #f6f0ff;
+    color: #7c3aed;
+}
+
+/* NAVBAR */
+.navbar {
+    background: #fff;
+    border-bottom: 2px solid #eee;
+    padding: 18px 32px;
+    font-weight: 900;
+    font-size: 1.3rem;
+    color: #a259e6;
+    letter-spacing: 0.01em;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+/* CARD & BOX */
+.card, .stat-box, .info-box, .activity-box, .table-box {
+    background: #fff;
+    border: 2.5px solid #181818;
+    border-radius: 0;
+    box-shadow: 6px 6px 0px #000;
+    padding: 24px 24px 18px 24px;
+    margin-bottom: 24px;
+}
+.stat-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 1.3rem;
+    font-weight: 900;
+    min-width: 180px;
+    min-height: 90px;
+    justify-content: center;
+}
+.stat-icon {
+    font-size: 2.2rem;
+    margin-right: 8px;
+    color: #a259e6;
+}
+.stat-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #222;
+}
+.stat-value {
+    font-size: 2.1rem;
+    font-weight: 900;
+    color: #181818;
+}
+
+/* BUTTON */
+.btn, .btn-primary, .btn-secondary {
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 1.1rem;
+    border: 2.5px solid #181818;
+    border-radius: 0;
+    box-shadow: 4px 4px 0px #000;
+    padding: 12px 28px;
+    background: #a259e6;
+    color: #fff;
+    cursor: pointer;
+    margin-right: 12px;
+    margin-bottom: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+.btn-secondary {
+    background: #fff;
+    color: #181818;
+}
+.btn:hover, .btn-primary:hover {
+    background: #7c3aed;
+    color: #fff;
+}
+.btn-secondary:hover {
+    background: #f6f0ff;
+    color: #a259e6;
+}
+
+/* BADGE STATUS */
+.badge {
+    display: inline-block;
+    font-weight: 900;
+    font-size: 1rem;
+    border-radius: 8px;
+    padding: 4px 18px;
+    margin-right: 6px;
+    margin-bottom: 2px;
+    color: #fff;
+    letter-spacing: 0.01em;
+}
+.badge.waiting { background: #f59e0b; }
+.badge.selesai, .badge.approved { background: #10b981; }
+.badge.ditolak, .badge.rejected { background: #ef4444; }
+.badge.submitted { background: #6366f1; }
+.badge.inreview { background: #a259e6; }
+.badge.info { background: #7c3aed; }
+
+/* TABLE */
+.table-box table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+}
+.table-box th, .table-box td {
+    border: 1.5px solid #181818;
+    padding: 12px 10px;
+    text-align: left;
+}
+.table-box th {
+    background: #f6f0ff;
+    font-weight: 900;
+    color: #a259e6;
+}
+.table-box tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+/* ACTIVITY LOG */
+.activity-log {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.activity-log li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.activity-log .activity-status {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #a259e6;
+    margin-right: 8px;
+}
+.activity-log .activity-content {
+    flex: 1;
+}
+.activity-log .activity-title {
+    font-weight: 900;
+    font-size: 1.1rem;
+    margin-bottom: 2px;
+}
+.activity-log .activity-date {
+    color: #888;
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+.activity-log .activity-note {
+    color: #222;
+    font-size: 0.98rem;
+}
+
+/* INFO BOX */
+.info-box {
+    background: #fff;
+    border: 2.5px solid #181818;
+    box-shadow: 4px 4px 0px #000;
+    padding: 18px 18px 12px 18px;
+    margin-bottom: 18px;
+    font-size: 1rem;
+    color: #181818;
+}
+.info-box .info-title {
+    font-weight: 900;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: #a259e6;
+}
+.info-box .important {
+    color: #ef4444;
+    font-weight: 700;
 }
