@@ -1,11 +1,24 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DosenController;
+use App\Http\Controllers\PengajuanController;
 use Illuminate\Support\Facades\Route;
 
+// ── Landing ───────────────────────────────────────────────────
+Route::get('/', fn() => view('landing'));
 
-// Landing page
-Route::get('/', function () {
-    return view('landing');
+// ── Auth (Guest only) ─────────────────────────────────────────
+Route::middleware('guest')->group(function () {
+    Route::get('/login',                [AuthController::class, 'showSelectRole'])->name('login.select');
+    Route::get('/login/mahasiswa',      [AuthController::class, 'showLoginMahasiswa'])->name('login.mahasiswa');
+    Route::get('/login/dosen',          [AuthController::class, 'showLoginDosen'])->name('login.dosen');
+    Route::get('/login/admin',          [AuthController::class, 'showLoginAdmin'])->name('login.admin');
+
+    Route::post('/login/mahasiswa',     [AuthController::class, 'login'])->defaults('role', 'mahasiswa');
+    Route::post('/login/dosen',         [AuthController::class, 'login'])->defaults('role', 'dosen');
+    Route::post('/login/admin',         [AuthController::class, 'login'])->defaults('role', 'admin');
 });
 
 // Login page
