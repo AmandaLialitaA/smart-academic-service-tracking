@@ -1,263 +1,409 @@
-/* CSS untuk Form Pengajuan Mahasiswa */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    font-family: 'Montserrat', Arial, sans-serif;
-    background: #f8f8ff;
-    color: #222;
+/* ===================================================
+   PENGAJUAN CSS — matching Form Pengajuan design
+   =================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,900&family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700;1,900&display=swap');
+
+/* ── Reset hanya untuk scope pengajuan ── */
+.pengajuan-wrap * { box-sizing: border-box; }
+
+.pengajuan-wrap {
+    font-family: 'Barlow', sans-serif;
+    max-width: 860px;
+    padding: 32px 32px 0 32px;
 }
 
-.main-layout {
-    display: flex;
-    min-height: 100vh;
-    background: #f8f8ff;
+/* ── Page Title ── */
+.form-page-title {
+    margin-bottom: 28px;
+    padding-left: 16px;
+    border-left: 5px solid #9B1FCA;
 }
 
-/* SIDEBAR */
-.sidebar {
-    width: 230px;
-    background: #fff;
-    border-right: 2.5px solid #e0e0e0;
-    display: flex;
-    flex-direction: column;
-    padding: 30px 0 0 0;
+.form-page-title h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    color: #111;
+    line-height: 1;
+    letter-spacing: 1px;
 }
-.sidebar-header {
-    font-size: 1.15rem;
+
+.form-page-title p {
+    font-size: 11.5px;
     font-weight: 800;
-    color: #a259e6;
-    padding: 0 32px 30px 32px;
-    letter-spacing: 0.5px;
-}
-.sidebar-menu ul {
-    list-style: none;
-    padding: 0 0 0 0;
-}
-.sidebar-menu li {
-    margin-bottom: 8px;
-}
-.sidebar-menu a {
-    display: block;
-    padding: 13px 32px;
-    font-weight: 700;
-    color: #222;
-    border-radius: 8px 0 0 8px;
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s;
-}
-.sidebar-menu .active a, .sidebar-menu a:hover {
-    background: #e9d6fa;
-    color: #a259e6;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: #555;
+    margin-top: 5px;
 }
 
-/* MAIN CONTENT */
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+/* ── Section Card ── */
+.form-section {
+    background: white;
+    border: 2.5px solid #111;
+    margin-bottom: 20px;
 }
-.navbar {
-    background: #fff;
-    border-bottom: 2.5px solid #e0e0e0;
-    padding: 20px 48px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.navbar-content {
+
+.form-section-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-}
-.navbar-content h1 {
-    font-size: 2.1rem;
-    font-weight: 900;
-    letter-spacing: 0.5px;
-    color: #a259e6;
-}
-.user-info {
-    text-align: right;
-    font-size: 0.95rem;
-    color: #666;
-}
-.user-info span {
-    display: block;
-}
-
-main {
-    padding: 38px 48px 32px 48px;
-    flex: 1;
-}
-
-.pengajuan-main p {
-    font-size: 1.13rem;
-    color: #222;
-    margin-bottom: 30px;
-}
-
-/* SERVICE SELECTION */
-.service-selection h2 {
-    font-size: 1.2rem;
-    font-weight: 800;
-    margin-bottom: 20px;
-    color: #a259e6;
-    letter-spacing: 0.5px;
-}
-.service-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-bottom: 40px;
-}
-.service-card {
-    background: #fff;
-    border: 2.5px solid #222;
-    border-radius: 12px;
-    padding: 24px;
-    text-align: center;
-    box-shadow: 3px 3px 0 #a259e6;
-    transition: transform 0.2s;
-}
-.service-card:hover {
-    transform: translateY(-2px);
-}
-.service-icon {
-    font-size: 3rem;
-    margin-bottom: 12px;
-}
-.service-card h3 {
-    font-size: 1.15rem;
-    font-weight: 800;
-    margin-bottom: 8px;
-    color: #a259e6;
-}
-.service-card p {
-    font-size: 1rem;
-    color: #666;
-    margin-bottom: 18px;
-}
-.btn-select {
-    background: #a259e6;
-    color: #fff;
-    border: 2px solid #a259e6;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.btn-select:hover {
-    background: #8a3fd1;
-}
-
-/* PENGAJUAN FORM */
-.pengajuan-form {
-    background: #fff;
-    border: 2.5px solid #a259e6;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 2px 2px 0 #a259e6;
-    margin-bottom: 30px;
-}
-.pengajuan-form h2 {
-    font-size: 1.3rem;
-    font-weight: 900;
-    margin-bottom: 24px;
-    color: #a259e6;
-}
-.form-group {
-    margin-bottom: 20px;
-}
-.form-group label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 6px;
-    color: #222;
-}
-.form-group input,
-.form-group textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.2s;
-}
-.form-group input:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #a259e6;
-}
-.form-group textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-.form-actions {
-    display: flex;
     gap: 12px;
-    justify-content: flex-end;
-    margin-top: 30px;
-}
-.btn-primary {
-    background: #a259e6;
-    color: #fff;
-    border: 2px solid #a259e6;
-    border-radius: 8px;
-    padding: 12px 28px;
-    font-weight: 800;
-    font-size: 1.08rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.btn-primary:hover {
-    background: #8a3fd1;
-}
-.btn-secondary {
-    background: #fff;
-    color: #a259e6;
-    border: 2px solid #a259e6;
-    border-radius: 8px;
-    padding: 12px 28px;
-    font-weight: 800;
-    font-size: 1.08rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.btn-secondary:hover {
-    background: #e9d6fa;
+    padding: 13px 20px;
+    border-bottom: 2.5px solid #111;
 }
 
-/* INFO PANEL */
-.info-panel {
-    background: #f3eaff;
-    border: 2.5px solid #a259e6;
-    border-radius: 12px;
-    padding: 22px 24px;
-    color: #222;
-    font-size: 1.08rem;
-    font-weight: 600;
-    box-shadow: 2px 2px 0 #a259e6;
-}
-.info-panel h3 {
-    color: #a259e6;
-    font-size: 1.1rem;
+.form-section-header.sec-purple { background: #EDD6FF; }
+.form-section-header.sec-teal   { background: #CCEFEF; }
+.form-section-header.sec-yellow { background: #FFF3CC; }
+
+.step-badge {
+    width: 26px;
+    height: 26px;
+    background: #111;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
     font-weight: 900;
-    margin-bottom: 8px;
+    flex-shrink: 0;
+    font-family: 'Barlow', sans-serif;
 }
-.info-panel ul {
-    margin-left: 18px;
+
+.form-section-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #111;
+    margin: 0;
+}
+
+.form-section-body {
+    padding: 22px 20px;
+}
+
+/* ── Form Grid ── */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
     margin-bottom: 0;
 }
 
-/* RESPONSIVE */
-@media (max-width: 1100px) {
-    main { padding: 28px 10px 20px 10px; }
-    .sidebar { width: 100px; }
-    .sidebar-header { font-size: 1rem; padding: 0 10px 20px 10px; }
-    .sidebar-menu a { padding: 10px 10px; font-size: 0.98rem; }
+.form-group label {
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #333;
 }
-@media (max-width: 900px) {
-    .main-layout { flex-direction: column; }
-    .sidebar { width: 100%; border-right: none; border-bottom: 2.5px solid #e0e0e0; flex-direction: row; justify-content: space-between; align-items: center; padding: 0 10px; }
-    main { padding: 18px 4px 10px 4px; }
-    .service-grid { grid-template-columns: 1fr; }
-    .form-actions { flex-direction: column; }
-    .navbar-content { flex-direction: column; gap: 10px; align-items: flex-start; }
+
+/* Select custom */
+.select-wrap {
+    position: relative;
+}
+
+.select-wrap select {
+    width: 100%;
+    padding: 11px 40px 11px 14px;
+    border: 2px solid #CCC;
+    background: white;
+    font-family: 'Barlow', sans-serif;
+    font-size: 13.5px;
+    color: #333;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.select-wrap select:focus { border-color: #9B1FCA; }
+
+.select-arrow {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+}
+
+/* Text input */
+.form-group input[type="text"] {
+    padding: 11px 14px;
+    border: 2px solid #CCC;
+    background: white;
+    font-family: 'Barlow', sans-serif;
+    font-size: 13.5px;
+    color: #333;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+}
+
+.form-group input[type="text"]:focus { border-color: #9B1FCA; }
+
+.form-group input[type="text"]::placeholder { color: #AAA; }
+
+/* Textarea */
+.form-group textarea {
+    padding: 11px 14px;
+    border: 2px solid #CCC;
+    background: white;
+    font-family: 'Barlow', sans-serif;
+    font-size: 13.5px;
+    color: #333;
+    outline: none;
+    resize: vertical;
+    min-height: 130px;
+    line-height: 1.6;
+    width: 100%;
+    transition: border-color 0.15s;
+}
+
+.form-group textarea:focus { border-color: #9B1FCA; }
+.form-group textarea::placeholder { color: #AAA; }
+
+/* Hint text */
+.form-hint {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* ── Upload Dropzone ── */
+.upload-dropzone {
+    border: 2.5px dashed #BBBBBB;
+    padding: 44px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+    margin-bottom: 14px;
+    background: white;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.drag-over {
+    border-color: #9B1FCA;
+    background: #FBF0FF;
+}
+
+.upload-dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.upload-icon-box {
+    width: 58px;
+    height: 58px;
+    border: 2px solid #CCC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    background: white;
+}
+
+.upload-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #111;
+    margin-bottom: 5px;
+}
+
+.upload-sub {
+    font-size: 12.5px;
+    color: #666;
+    margin-bottom: 14px;
+}
+
+.upload-tags {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.upload-tag {
+    border: 1.5px solid #999;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #444;
+    font-family: 'Barlow', sans-serif;
+}
+
+/* File preview */
+.file-preview {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #F5F5F5;
+    border: 1.5px solid #DDD;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.file-preview-name {
+    flex: 1;
+    font-weight: 600;
+    color: #222;
+    font-family: 'Barlow', sans-serif;
+}
+
+.file-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #E53935;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 6px;
+    font-family: 'Barlow', sans-serif;
+}
+
+/* ── Warning Box ── */
+.warning-box {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #FFFBEB;
+    border: 1.5px solid #F5A623;
+    padding: 13px 16px;
+}
+
+.warning-title {
+    font-size: 11.5px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #D97706;
+    margin-bottom: 3px;
+    font-family: 'Barlow', sans-serif;
+}
+
+.warning-box p {
+    font-size: 12px;
+    color: #8B5E10;
+    font-style: italic;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ── Action Buttons ── */
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.btn-batal {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    border: 2.5px solid #111;
+    background: white;
+    color: #111;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+
+.btn-batal:hover { background: #111; color: white; }
+
+.btn-kirim {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    background: #9B1FCA;
+    border: none;
+    color: white;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    font-style: italic;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-kirim:hover { background: #C44FEC; }
+
+/* ── Footer Info Bar ── */
+.form-footer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    padding: 18px 0 24px;
+    border-top: 1.5px solid #E0E0E0;
+    margin-top: 20px;
+}
+
+.footer-info-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.footer-icon-box {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #CCC;
+    flex-shrink: 0;
+}
+
+.footer-icon-box.fi-purple { background: #EDD6FF; }
+.footer-icon-box.fi-teal   { background: #CCEFEF; }
+
+.fi-label {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #333;
+    font-family: 'Barlow', sans-serif;
+}
+
+.fi-val {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    font-style: italic;
+    font-family: 'Barlow', sans-serif;
 }

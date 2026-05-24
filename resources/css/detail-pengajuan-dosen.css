@@ -1,0 +1,419 @@
+.detail-wrap {
+    padding: 32px;
+}
+
+.detail-body {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+/* Kolom Kiri */
+.detail-left {
+    width: 300px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.detail-card {
+    background: #fff;
+    border: 2px solid #111;
+    padding: 20px;
+}
+
+.detail-card-title {
+    font-weight: 900;
+    font-size: 0.95rem;
+    color: #111;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+}
+
+/* Profil */
+.mhs-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.mhs-profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #eee;
+}
+
+.mhs-profile-name {
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: #111;
+}
+
+.mhs-profile-nim {
+    color: #a259e6;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.mhs-detail-item {
+    border: 1.5px solid #e0e0e0;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+}
+
+.mhs-detail-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.mhs-detail-val {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #111;
+}
+
+/* Detail Layanan */
+.layanan-detail-item {
+    margin-bottom: 14px;
+}
+
+.layanan-detail-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.layanan-detail-val {
+    font-weight: 800;
+    font-size: 1rem;
+    color: #111;
+}
+
+.layanan-note {
+    background: #f9f9f9;
+    border: 1.5px solid #e0e0e0;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    color: #555;
+    font-style: italic;
+    line-height: 1.6;
+    margin-bottom: 14px;
+}
+
+.layanan-status-badge {
+    display: inline-block;
+    border: 2px solid #111;
+    padding: 6px 14px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    color: #111;
+    margin-bottom: 14px;
+}
+
+.layanan-verified {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #f5f5f5;
+    border: 1.5px solid #e0e0e0;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: #444;
+    line-height: 1.5;
+}
+
+/* Kolom Kanan */
+.detail-right {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* PDF Toolbar */
+.pdf-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid #111;
+    padding: 10px 16px;
+    background: #fff;
+    flex-wrap: wrap;
+}
+
+.pdf-zoom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pdf-zoom-val {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.pdf-btn {
+    background: none;
+    border: 1.5px solid #ccc;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.pdf-btn-download {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    border: 1.5px solid #111;
+    padding: 6px 14px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.pdf-filename {
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #555;
+    text-align: right;
+}
+
+/* PDF Preview */
+.pdf-preview {
+    border: 2px solid #111;
+    background: #e0e0e0;
+    padding: 32px;
+    min-height: 500px;
+}
+
+.surat-wrap {
+    background: #fff;
+    padding: 40px;
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: #111;
+}
+
+.surat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.surat-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.surat-logo-box {
+    width: 48px;
+    height: 48px;
+    background: #a259e6;
+    color: #fff;
+    font-weight: 900;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.surat-univ-name {
+    font-weight: 900;
+    font-size: 0.9rem;
+    color: #111;
+}
+
+.surat-univ-sub {
+    font-size: 0.78rem;
+    color: #555;
+}
+
+.surat-nomor {
+    font-size: 0.78rem;
+    color: #555;
+    text-align: right;
+}
+
+.surat-divider {
+    border: none;
+    border-top: 2px solid #111;
+    margin: 12px 0;
+}
+
+.surat-judul {
+    text-align: center;
+    font-weight: 900;
+    font-size: 1rem;
+    text-decoration: underline;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+}
+
+.surat-pembuka {
+    margin-bottom: 16px;
+}
+
+.surat-table {
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.surat-table td {
+    padding: 3px 8px;
+    vertical-align: top;
+}
+
+.surat-table td:first-child {
+    width: 100px;
+    font-weight: 700;
+}
+
+.surat-isi {
+    margin-bottom: 12px;
+}
+
+.surat-kota {
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.surat-ttd-area {
+    text-align: center;
+    margin-top: 16px;
+}
+
+.surat-ttd-placeholder {
+    color: #aaa;
+    font-style: italic;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.surat-ttd-line {
+    color: #aaa;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.surat-ttd-nama {
+    font-weight: 900;
+    font-size: 0.9rem;
+}
+
+.surat-ttd-nidn {
+    font-size: 0.82rem;
+    color: #555;
+}
+
+/* Action Box */
+.detail-action-box {
+    border: 2px solid #111;
+    padding: 20px;
+    background: #fff;
+}
+
+.komentar-label {
+    font-weight: 900;
+    font-size: 0.85rem;
+    color: #111;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.komentar-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.komentar-input {
+    flex: 1;
+    border: 1.5px solid #ccc;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+}
+
+.komentar-input:focus {
+    border-color: #a259e6;
+}
+
+.aksi-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.btn-tolak {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 2px solid #e11d48;
+    padding: 10px 20px;
+    color: #e11d48;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+.btn-approve {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #a259e6;
+    border: none;
+    padding: 10px 20px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+.btn-approve:hover { background: #7c3aed; }
+.btn-tolak:hover { background: #fff0f3; }
+
+@media (max-width: 900px) {
+    .detail-body { flex-direction: column; }
+    .detail-left { width: 100%; }
+    .komentar-row { flex-direction: column; }
+    .aksi-buttons { flex-direction: row; }
+}
