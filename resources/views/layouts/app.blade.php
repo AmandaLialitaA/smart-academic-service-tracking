@@ -8,20 +8,43 @@
     @yield('head')
 </head>
 <body>
+@hasSection('sidebar')
     <div class="main-layout">
         <aside class="sidebar">
-            <!-- Sidebar content, bisa di-@section('sidebar') untuk custom per halaman -->
             @yield('sidebar')
         </aside>
         <div class="main-content">
             <nav class="navbar">
-                <!-- Navbar content, bisa di-@section('navbar') untuk custom per halaman -->
                 @yield('navbar')
             </nav>
             <main>
+                @if(session('success'))
+                    <div class="alert alert-success">✔ {{ session('success') }}</div>
+                @endif
+                @if(session('error'))
+                    <div class="alert alert-error">✘ {{ session('error') }}</div>
+                @endif
+                @if($errors->any())
+                    <div class="alert alert-error">
+                        <ul style="margin:0;padding-left:20px;">
+                            @foreach($errors->all() as $err)
+                                <li>{{ $err }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 @yield('content')
             </main>
         </div>
     </div>
+@else
+    {{-- Landing / halaman full-width --}}
+    @if(session('success'))
+        <div class="alert alert-success" style="position:fixed;top:12px;right:12px;z-index:9999;max-width:400px;">
+            ✔ {{ session('success') }}
+        </div>
+    @endif
+    @yield('content')
+@endif
 </body>
 </html>
