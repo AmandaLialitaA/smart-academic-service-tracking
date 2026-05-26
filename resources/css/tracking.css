@@ -1,268 +1,297 @@
-/* TRACKING PENGAJUAN - NEO BRUTALISM DESIGN */
-
-.tracking-main {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+.tracking-wrap {
+    padding: 32px;
+    max-width: 1100px;
 }
 
-.tracking-main p {
-    font-size: 1.1rem;
-    margin-bottom: 30px;
-    color: #333;
+.tracking-back {
+    color: #a259e6;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.95rem;
+    display: inline-block;
+    margin-bottom: 12px;
 }
 
-.tracking-info {
+.tracking-title-row {
     display: flex;
-    gap: 20px;
-    margin-bottom: 30px;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 16px;
     flex-wrap: wrap;
 }
 
-.tracking-box {
-    background: #fff;
-    border: 3px solid #000;
-    padding: 20px;
-    flex: 1;
-    min-width: 250px;
-    box-shadow: 4px 4px 0px #000;
-    transition: all 0.2s ease;
-}
-
-.tracking-box:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px #000;
-}
-
-.tracking-box div:first-child {
-    margin-bottom: 8px;
-    color: #666;
-}
-
-.tracking-box div:last-child {
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-.tracking-progress {
-    margin-bottom: 40px;
-}
-
-.progress-label {
-    font-weight: 700;
-    font-size: 1.1rem;
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.progress-bar-bg {
-    width: 100%;
-    height: 25px;
-    background: #eee;
-    border: 2px solid #000;
-    box-shadow: inset 2px 2px 0px #ccc;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #a259e6 0%, #8b5cf6 100%);
-    transition: width 0.5s ease;
-    box-shadow: inset -2px -2px 0px rgba(0,0,0,0.2);
-}
-
-.log-activity {
-    margin-bottom: 30px;
-}
-
-.log-activity h2 {
-    font-size: 1.5rem;
+.tracking-title {
+    font-size: 2.2rem;
     font-weight: 900;
-    margin-bottom: 20px;
-    color: #000;
-    text-transform: uppercase;
+    color: #111;
     letter-spacing: 1px;
 }
 
-.activity-list {
-    border: 3px solid #000;
+.tracking-sub {
+    color: #555;
+    font-size: 0.97rem;
+    margin-top: 4px;
+}
+
+.tracking-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.btn-bantuan {
     background: #fff;
-    box-shadow: 4px 4px 0px #000;
+    border: 2px solid #111;
+    padding: 10px 20px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-refresh {
+    background: #a259e6;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.tracking-body {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.tracking-left {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tracking-right {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Info boxes */
+.tracking-info-boxes {
+    display: flex;
+    gap: 0;
+    border: 2px solid #111;
+}
+
+.tracking-box {
+    flex: 1;
+    padding: 14px 16px;
+    border-right: 2px solid #111;
+}
+
+.tracking-box:last-child {
+    border-right: none;
+}
+
+.tbox-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.tbox-val {
+    font-weight: 800;
+    font-size: 1rem;
+    color: #111;
+}
+
+/* Progress */
+.tracking-progress-box {
+    border: 2px solid #111;
+    padding: 16px;
+}
+
+.progress-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+.progress-bar-bg {
+    background: #e0e0e0;
+    height: 14px;
+    border-radius: 0;
+}
+
+.progress-bar {
+    background: #a259e6;
+    height: 100%;
+    border-radius: 0;
+}
+
+/* Log */
+.log-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    margin-bottom: 16px;
+    color: #111;
 }
 
 .activity-item {
     display: flex;
-    padding: 20px;
-    border-bottom: 2px solid #eee;
-    align-items: flex-start;
-    gap: 15px;
+    gap: 16px;
+    background: #fff;
+    border: 1.5px solid #e0e0e0;
+    padding: 16px;
+    margin-bottom: 12px;
 }
 
-.activity-item:last-child {
-    border-bottom: none;
-}
-
-.activity-status {
-    width: 30px;
-    height: 30px;
+.activity-icon {
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #a259e6;
-    color: white;
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 1.1rem;
+    font-weight: 900;
     flex-shrink: 0;
-    border: 2px solid #000;
-    box-shadow: 2px 2px 0px #000;
+    font-size: 1rem;
 }
 
-.activity-item:last-child .activity-status {
+.activity-icon--gray {
     background: #eee;
     color: #bbb;
     border: 2px solid #eee;
-    box-shadow: 2px 2px 0px #ddd;
 }
 
 .activity-content {
     flex: 1;
 }
 
-.activity-title {
-    font-weight: 700;
-    font-size: 1.1rem;
-    margin-bottom: 5px;
+.activity-header {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.activity-name {
+    font-weight: 900;
+    font-size: 0.97rem;
+    color: #111;
 }
 
 .activity-date {
-    color: #666;
-    font-size: 0.9rem;
-    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 6px;
+}
+
+.activity-desc {
+    font-size: 0.95rem;
+    color: #222;
+    margin-bottom: 6px;
 }
 
 .activity-note {
-    color: #333;
-    line-height: 1.5;
+    font-size: 0.85rem;
+    color: #888;
+    font-style: italic;
+    border-left: 3px solid #e0e0e0;
+    padding-left: 10px;
 }
 
+/* Status badges */
 .status-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-weight: 800;
     font-size: 0.8rem;
-    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
-.status-badge.selesai {
-    background: #10b981;
-    color: white;
-    border: 2px solid #059669;
-    box-shadow: 1px 1px 0px #059669;
+.status-badge.selesai { background: #1fae51; color: #fff; }
+.status-badge.dalam-proses { background: #f59e0b; color: #fff; }
+
+/* Right cards */
+.info-card {
+    border: 2px solid #111;
+    padding: 18px;
 }
 
-.status-badge.dalam-proses {
-    background: #f59e0b;
-    color: white;
-    border: 2px solid #d97706;
-    box-shadow: 1px 1px 0px #d97706;
-}
+.info-card--purple { background: #f3e8ff; }
+.info-card--teal { background: #e0f7f7; }
 
-.info-panel {
-    background: #fff;
-    border: 3px solid #000;
-    padding: 20px;
-    flex: 1;
-    min-width: 300px;
-    box-shadow: 4px 4px 0px #000;
-}
-
-.info-panel h3 {
-    font-size: 1.2rem;
+.info-card-title {
     font-weight: 900;
-    margin-bottom: 15px;
-    color: #000;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.info-panel .important {
-    color: #dc2626;
-    font-weight: 600;
-    line-height: 1.6;
-}
-
-.btn-primary, .btn-secondary {
-    padding: 12px 24px;
-    border: 3px solid #000;
-    background: #a259e6;
-    color: white;
-    font-weight: 700;
     font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 4px 4px 0px #000;
+    margin-bottom: 10px;
+    color: #111;
 }
 
-.btn-primary:hover, .btn-secondary:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px #000;
-}
-
-.btn-secondary {
+.loket-box {
     background: #fff;
-    color: #000;
-    border: 3px solid #000;
+    border: 1.5px solid #ddd;
+    padding: 10px 12px;
+    margin-top: 12px;
+    font-size: 0.9rem;
 }
 
-.btn-secondary:hover {
-    background: #f8f9fa;
+.loket-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 4px;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .tracking-info {
-        flex-direction: column;
-    }
-
-    .tracking-box {
-        min-width: auto;
-    }
-
-    .info-panel {
-        min-width: auto;
-    }
-
-    .activity-item {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .activity-status {
-        align-self: flex-start;
-    }
-
-    .btn-primary, .btn-secondary {
-        width: 100%;
-        margin-bottom: 10px;
-    }
+.loket-val {
+    font-weight: 800;
+    color: #111;
 }
 
-@media (max-width: 480px) {
-    .tracking-main {
-        padding: 15px;
-    }
+.loket-jam {
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
 
-    .tracking-box, .info-panel {
-        padding: 15px;
-    }
+.penting-list {
+    padding-left: 18px;
+    font-size: 0.9rem;
+    color: #333;
+    line-height: 1.8;
+}
 
-    .activity-item {
-        padding: 15px;
-    }
+.dashboard-footer {
+    margin-top: 40px;
+    padding: 18px 0 10px;
+    text-align: center;
+    color: #777;
+    font-size: 0.95rem;
+    border-top: 1px solid #eee;
+}
+
+@media (max-width: 900px) {
+    .tracking-body { flex-direction: column; }
+    .tracking-right { width: 100%; }
+    .tracking-info-boxes { flex-direction: column; }
+    .tracking-box { border-right: none; border-bottom: 2px solid #111; }
+    .tracking-box:last-child { border-bottom: none; }
 }

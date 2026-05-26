@@ -1,16 +1,16 @@
 <aside class="sidebar sidebar-mahasiswa">
     <nav class="sidebar-nav">
-        <a href="/dashboard" class="{{ request()->is('dashboard') ? 'active' : '' }}">
+        <a href="/dosen/dashboard" class="{{ request()->is('dosen/dashboard') ? 'active' : '' }}">
             <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>
             Dashboard
         </a>
-        <a href="/pengajuan" class="{{ request()->is('pengajuan*') ? 'active' : '' }}">
-            <span class="nav-icon"><i data-lucide="file-plus"></i></span>
-            Ajukan Layanan
+        <a href="/dosen/menunggu" class="{{ request()->is('dosen/menunggu') ? 'active' : '' }}">
+            <span class="nav-icon"><i data-lucide="pen-line"></i></span>
+            Menunggu TTD
         </a>
-        <a href="/riwayat" class="{{ request()->is('riwayat') ? 'active' : '' }}">
-            <span class="nav-icon"><i data-lucide="clock"></i></span>
-            Riwayat Pengajuan
+        <a href="/dosen/riwayat" class="{{ request()->is('dosen/riwayat') ? 'active' : '' }}">
+            <span class="nav-icon"><i data-lucide="history"></i></span>
+            Riwayat
         </a>
     </nav>
     <div class="sidebar-footer">

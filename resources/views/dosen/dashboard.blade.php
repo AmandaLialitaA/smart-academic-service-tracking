@@ -4,125 +4,264 @@
     @vite(['resources/css/dashboard-dosen.css'])
 @endsection
 @section('sidebar')
-<div class="sidebar-header">Smart Academic UMS</div>
-<nav class="sidebar-menu">
-    <ul>
-        <li class="active"><a href="/dosen/dashboard">Dashboard</a></li>
-        <li><a href="/dosen/verifikasi">Verifikasi Pengajuan</a></li>
-        <li><a href="/dosen/riwayat">Riwayat Tanda Tangan</a></li>
-        <li><a href="/dosen/laporan">Laporan Akademik</a></li>
-    </ul>
-</nav>
-@endsection
-@section('navbar')
-<div class="navbar-content">
-    <h1>DASHBOARD DOSEN</h1>
-    <div class="user-info">
-        <span>Dr. Ahmad Yani, S.T., M.T.</span>
-        <span>Dosen Tetap - Teknik Informatika</span>
-    </div>
-</div>
+    @include('components.sidebar-dosen')
 @endsection
 @section('content')
-<div class="dashboard-main">
-    <p>Kelola dan pantau pengajuan akademik mahasiswa yang memerlukan verifikasi Anda.</p>
+@section('topbar_name', 'lecturer')
+@section('topbar_role', 'UMS Academic')
+<div class="dosen-wrap">
 
-    <!-- Stats Cards -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">📋</div>
-            <div class="stat-content">
-                <div class="stat-number">12</div>
-                <div class="stat-label">MENUNGGU VERIFIKASI</div>
+    {{-- Header --}}
+    <div class="dosen-header">
+        <div class="dosen-header-left">
+            <h1 class="dosen-title">DASHBOARD <span class="title-purple">DOSEN</span></h1>
+            <p class="dosen-sub">Selamat datang kembali, Prof. Dr. Sutrisno. Anda memiliki <a href="#" class="link-purple">12 pengajuan</a> yang menunggu verifikasi hari ini.</p>
+        </div>
+        <div class="dosen-header-right">
+            <button class="btn-rekap">⬇ Rekap Bulanan</button>
+            <button class="btn-riwayat">Lihat Riwayat</button>
+        </div>
+    </div>
+
+    {{-- Stat Cards --}}
+    <div class="dosen-stats">
+        <div class="dosen-stat-card">
+            <div class="dstat-content">
+                <div class="dstat-label">MENUNGGU TTD</div>
+                <div class="dstat-number">12</div>
+                <div class="dstat-sub">Perlu tindakan segera</div>
+            </div>
+            <div class="dstat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-content">
-                <div class="stat-number">28</div>
-                <div class="stat-label">DISETUJUI HARI INI</div>
+        <div class="dosen-stat-card">
+            <div class="dstat-content">
+                <div class="dstat-label">MAHASISWA TERLAYANI</div>
+                <div class="dstat-number">148</div>
+                <div class="dstat-sub">Total semester ini</div>
+            </div>
+            <div class="dstat-icon dstat-icon--teal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon">⏰</div>
-            <div class="stat-content">
-                <div class="stat-number">5</div>
-                <div class="stat-label">DALAM ANTRIAN</div>
+        <div class="dosen-stat-card">
+            <div class="dstat-content">
+                <div class="dstat-label">SELESAI MINGGU INI</div>
+                <div class="dstat-number">24</div>
+                <div class="dstat-sub">Dokumen telah diproses</div>
             </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">📊</div>
-            <div class="stat-content">
-                <div class="stat-number">94%</div>
-                <div class="stat-label">TINGKAT KELENGKAPAN</div>
+            <div class="dstat-icon dstat-icon--green">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <h2>AKSI CEPAT</h2>
-        <div class="action-buttons">
-            <button class="action-btn primary">VERIFIKASI BARU</button>
-            <button class="action-btn secondary">TANDA TANGAN DIGITAL</button>
-            <button class="action-btn secondary">EXPORT LAPORAN</button>
+    {{-- Tabel Pengajuan --}}
+    <div class="dosen-table-section">
+        <div class="dosen-table-header">
+            <h2 class="dosen-table-title">⏰ PENGAJUAN MENUNGGU TTD</h2>
+            <div class="dosen-table-actions">
+                <button class="btn-filter">▼ FILTER: TERBARU</button>
+                <a href="#" class="link-lihat-semua">Lihat Semua →</a>
+            </div>
+        </div>
+
+        <table class="dosen-table">
+            <thead>
+                <tr>
+                    <th>MAHASISWA</th>
+                    <th>LAYANAN</th>
+                    <th>TANGGAL MASUK</th>
+                    <th>STATUS</th>
+                    <th>AKSI</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="mhs-info">
+                            <img src="https://i.pravatar.cc/36?img=1" class="mhs-avatar" alt="">
+                            <div>
+                                <div class="mhs-name">AHMAD DAHLAN</div>
+                                <div class="mhs-nim">L200210045</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="layanan-info">
+                            <span class="layanan-icon"><i data-lucide="file-text" style="width:16px;height:16px;color:#a259e6;"></i></span>
+                            <span>SURAT KETERANGAN AKTIF KULIAH</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="tgl-info">
+                            <div>24 Okt 2023</div>
+                            <div class="tgl-sub">3 jam yang lalu</div>
+                        </div>
+                    </td>
+                    <td><span class="dosen-badge badge-ttd">Menunggu TTD</span></td>
+                    <td>
+                        <div class="aksi-group">
+                            <button class="btn-review">👁 Review</button>
+                            <button class="btn-more">⋮</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="mhs-info">
+                            <img src="https://i.pravatar.cc/36?img=5" class="mhs-avatar" alt="">
+                            <div>
+                                <div class="mhs-name">SITI WALIDAH</div>
+                                <div class="mhs-nim">B100220112</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="layanan-info">
+                            <span class="layanan-icon"><i data-lucide="file-text" style="width:16px;height:16px;color:#a259e6;"></i></span>
+                            <span>TRANSKRIP NILAI SEMENTARA</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="tgl-info">
+                            <div>24 Okt 2023</div>
+                            <div class="tgl-sub">3 jam yang lalu</div>
+                        </div>
+                    </td>
+                    <td><span class="dosen-badge badge-ttd">Menunggu TTD</span></td>
+                    <td>
+                        <div class="aksi-group">
+                            <button class="btn-review">👁 Review</button>
+                            <button class="btn-more">⋮</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="mhs-info">
+                            <img src="https://i.pravatar.cc/36?img=8" class="mhs-avatar" alt="">
+                            <div>
+                                <div class="mhs-name">HAIDAR NASHIR</div>
+                                <div class="mhs-nim">J500210089</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="layanan-info">
+                            <span class="layanan-icon"><i data-lucide="file-text" style="width:16px;height:16px;color:#a259e6;"></i></span>
+                            <span>PENGAJUAN CUTI AKADEMIK</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="tgl-info">
+                            <div>23 Okt 2023</div>
+                            <div class="tgl-sub">3 jam yang lalu</div>
+                        </div>
+                    </td>
+                    <td><span class="dosen-badge badge-ttd">Menunggu TTD</span></td>
+                    <td>
+                        <div class="aksi-group">
+                            <button class="btn-review">👁 Review</button>
+                            <button class="btn-more">⋮</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="mhs-info">
+                            <img src="https://i.pravatar.cc/36?img=9" class="mhs-avatar" alt="">
+                            <div>
+                                <div class="mhs-name">SALMA SALSABIL</div>
+                                <div class="mhs-nim">A510210023</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="layanan-info">
+                            <span class="layanan-icon"><i data-lucide="file-text" style="width:16px;height:16px;color:#a259e6;"></i></span>
+                            <span>LEGALISIR IJAZAH</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="tgl-info">
+                            <div>23 Okt 2023</div>
+                            <div class="tgl-sub">3 jam yang lalu</div>
+                        </div>
+                    </td>
+                    <td><span class="dosen-badge badge-ttd">Menunggu TTD</span></td>
+                    <td>
+                        <div class="aksi-group">
+                            <button class="btn-review">👁 Review</button>
+                            <button class="btn-more">⋮</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="mhs-info">
+                            <img src="https://i.pravatar.cc/36?img=12" class="mhs-avatar" alt="">
+                            <div>
+                                <div class="mhs-name">BUDI UTOMO</div>
+                                <div class="mhs-nim">D400210056</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="layanan-info">
+                            <span class="layanan-icon"><i data-lucide="file-text" style="width:16px;height:16px;color:#a259e6;"></i></span>
+                            <span>SURAT REKOMENDASI BEASISWA</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="tgl-info">
+                            <div>22 Okt 2023</div>
+                            <div class="tgl-sub">3 jam yang lalu</div>
+                        </div>
+                    </td>
+                    <td><span class="dosen-badge badge-ttd">Menunggu TTD</span></td>
+                    <td>
+                        <div class="aksi-group">
+                            <button class="btn-review">👁 Review</button>
+                            <button class="btn-more">⋮</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        {{-- Pagination --}}
+        <div class="dosen-pagination">
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <span class="page-ellipsis">...</span>
+            <button class="page-btn">12</button>
         </div>
     </div>
 
-    <!-- Recent Activities -->
-    <div class="recent-activities">
-        <h2>AKTIVITAS TERBARU</h2>
-        <div class="activity-table">
-            <div class="table-header">
-                <div>WAKTU</div>
-                <div>MAHASISWA</div>
-                <div>JENIS LAYANAN</div>
-                <div>STATUS</div>
-                <div>AKSI</div>
+    {{-- Bottom Cards --}}
+    <div class="dosen-bottom-cards">
+        <div class="bottom-card bottom-card--pink">
+            <div class="bottom-card-icon"><i data-lucide="users" style="width:24px;height:24px;color:#a259e6;"></i></div>
+            <div>
+                <div class="bottom-card-title">JADWAL TANDA TANGAN OFFLINE</div>
+                <p>Bagi mahasiswa yang memerlukan tanda tangan basah untuk berkas khusus, jam pelayanan tersedia setiap Selasa & Kamis pukul 13.00 - 15.00 di Ruang Dosen Lt. 3.</p>
+                <a href="#" class="bottom-card-link">Lihat Jadwal Lengkap</a>
             </div>
-            <div class="table-row">
-                <div>10:30</div>
-                <div>Ahmad Fauzi<br><span style="color:#666;font-size:0.9em;">TI-2020-001</span></div>
-                <div>Surat Keterangan</div>
-                <div><span class="status-badge pending">MENUNGGU</span></div>
-                <div><button class="btn-small">VERIFIKASI</button></div>
-            </div>
-            <div class="table-row">
-                <div>09:15</div>
-                <div>Siti Aminah<br><span style="color:#666;font-size:0.9em;">TI-2020-015</span></div>
-                <div>Surat Rekomendasi</div>
-                <div><span class="status-badge approved">DISETUJUI</span></div>
-                <div><button class="btn-small disabled">SELESAI</button></div>
-            </div>
-            <div class="table-row">
-                <div>08:45</div>
-                <div>Budi Santoso<br><span style="color:#666;font-size:0.9em;">TI-2020-023</span></div>
-                <div>Surat Aktif Kuliah</div>
-                <div><span class="status-badge rejected">DITOLAK</span></div>
-                <div><button class="btn-small disabled">SELESAI</button></div>
+        </div>
+        <div class="bottom-card bottom-card--teal">
+            <div class="bottom-card-icon"><i data-lucide="check-circle" style="width:24px;height:24px;color:#a259e6;"></i></div>
+            <div>
+                <div class="bottom-card-title">TIPS VERIFIKASI CEPAT</div>
+                <p>Gunakan fitur "Batch Signature" untuk menandatangani lebih dari 5 dokumen sekaligus dengan satu kali verifikasi OTP/Biometrik.</p>
+                <a href="#" class="bottom-card-link">Pelajari Fitur</a>
             </div>
         </div>
     </div>
 
-    <!-- Info Panels -->
-    <div class="info-panels">
-        <div class="info-panel">
-            <h3>PANDUAN VERIFIKASI</h3>
-            <ul>
-                <li>Periksa kelengkapan data mahasiswa di SIAKAD</li>
-                <li>Validasi persyaratan akademik sesuai ketentuan</li>
-                <li>Berikan alasan jika menolak pengajuan</li>
-                <li>Gunakan tanda tangan digital untuk otentikasi</li>
-            </ul>
-        </div>
-        <div class="info-panel">
-            <h3>STATISTIK BULANAN</h3>
-            <div class="monthly-stats">
-                <div>Total Verifikasi: <strong>156</strong></div>
-                <div>Rata-rata Waktu: <strong>2.3 jam</strong></div>
-                <div>Tingkat Kepuasan: <strong>4.8/5</strong></div>
-            </div>
-        </div>
-    </div>
 </div>
+
+<footer class="dashboard-footer">© 2026 Universitas Muhammadiyah Surakarta. Smart Academic Service Tracking.</footer>
 @endsection
