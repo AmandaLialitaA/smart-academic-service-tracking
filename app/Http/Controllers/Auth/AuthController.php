@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -32,8 +31,35 @@ class AuthController extends Controller
         return view('auth.login-admin');
     }
 
-    // ── Proses login (satu method untuk semua role) ───────────
-    public function login(Request $request, string $role)
+    // ── Proses login mahasiswa ────────────────────────────────
+    public function loginMahasiswa(Request $request)
+    {
+        return $this->loginAs($request, 'mahasiswa');
+    }
+
+    // ── Proses login dosen ────────────────────────────────────
+    public function loginDosen(Request $request)
+    {
+        return $this->loginAs($request, 'dosen');
+    }
+
+    // ── Proses login admin ────────────────────────────────────
+    public function loginAdmin(Request $request)
+    {
+        return $this->loginAs($request, 'admin');
+    }
+
+    // ── Logout ────────────────────────────────────────────────
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login')->with('success', 'Berhasil logout.');
+    }
+
+    // ── Private: logika login utama ───────────────────────────
+    private function loginAs(Request $request, string $role)
     {
         $request->validate([
             'email'    => ['required', 'email'],
@@ -44,7 +70,6 @@ class AuthController extends Controller
             'password.required' => 'Password wajib diisi.',
         ]);
 
-        // Coba autentikasi
         $credentials = $request->only('email', 'password');
 
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
@@ -55,7 +80,7 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // Pastikan role sesuai halaman login yang diakses
+        // Pastikan role sesuai halaman login
         if ($user->role !== $role) {
             Auth::logout();
             $request->session()->invalidate();
@@ -67,19 +92,10 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         // Redirect ke dashboard sesuai role
-        return match($user->role) {
+        return match ($user->role) {
             'mahasiswa' => redirect()->intended('/dashboard'),
             'dosen'     => redirect()->intended('/dosen/dashboard'),
             'admin'     => redirect()->intended('/admin/dashboard'),
         };
-    }
-
-    // ── Logout ────────────────────────────────────────────────
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/login')->with('success', 'Berhasil logout.');
     }
 }
