@@ -9,45 +9,16 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    // ── Tampilkan halaman pilih role ──────────────────────────
-    public function showSelectRole()
-    {
-        return view('auth.login-select');
-    }
+    // ── Halaman pilih role ────────────────────────────────────
+    public function showSelectRole()   { return view('auth.login-select'); }
+    public function showLoginMahasiswa() { return view('auth.login-mahasiswa'); }
+    public function showLoginDosen()   { return view('auth.login-dosen'); }
+    public function showLoginAdmin()   { return view('auth.login-admin'); }
 
-    // ── Tampilkan form login per role ─────────────────────────
-    public function showLoginMahasiswa()
-    {
-        return view('auth.login-mahasiswa');
-    }
-
-    public function showLoginDosen()
-    {
-        return view('auth.login-dosen');
-    }
-
-    public function showLoginAdmin()
-    {
-        return view('auth.login-admin');
-    }
-
-    // ── Proses login mahasiswa ────────────────────────────────
-    public function loginMahasiswa(Request $request)
-    {
-        return $this->loginAs($request, 'mahasiswa');
-    }
-
-    // ── Proses login dosen ────────────────────────────────────
-    public function loginDosen(Request $request)
-    {
-        return $this->loginAs($request, 'dosen');
-    }
-
-    // ── Proses login admin ────────────────────────────────────
-    public function loginAdmin(Request $request)
-    {
-        return $this->loginAs($request, 'admin');
-    }
+    // ── Proses login per role ─────────────────────────────────
+    public function loginMahasiswa(Request $request) { return $this->loginAs($request, 'mahasiswa'); }
+    public function loginDosen(Request $request)     { return $this->loginAs($request, 'dosen'); }
+    public function loginAdmin(Request $request)     { return $this->loginAs($request, 'admin'); }
 
     // ── Logout ────────────────────────────────────────────────
     public function logout(Request $request)
@@ -58,7 +29,7 @@ class AuthController extends Controller
         return redirect('/login')->with('success', 'Berhasil logout.');
     }
 
-    // ── Private: logika login utama ───────────────────────────
+    // ── Private: logika login ─────────────────────────────────
     private function loginAs(Request $request, string $role)
     {
         $request->validate([
@@ -70,9 +41,7 @@ class AuthController extends Controller
             'password.required' => 'Password wajib diisi.',
         ]);
 
-        $credentials = $request->only('email', 'password');
-
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             throw ValidationException::withMessages([
                 'email' => 'Email atau password salah.',
             ]);
@@ -80,7 +49,6 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // Pastikan role sesuai halaman login
         if ($user->role !== $role) {
             Auth::logout();
             $request->session()->invalidate();
@@ -91,7 +59,6 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        // Redirect ke dashboard sesuai role
         return match ($user->role) {
             'mahasiswa' => redirect()->intended('/dashboard'),
             'dosen'     => redirect()->intended('/dosen/dashboard'),

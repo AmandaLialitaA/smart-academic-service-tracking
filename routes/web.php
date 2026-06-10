@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\PengajuanController;
+use App\Http\Controllers\TandaTanganController;
 use Illuminate\Support\Facades\Route;
 
 // ── Landing ───────────────────────────────────────────────────
@@ -15,6 +16,11 @@ Route::middleware('guest')->group(function () {
     Route::get('/login/mahasiswa',  [AuthController::class, 'showLoginMahasiswa'])->name('login.mahasiswa');
     Route::get('/login/dosen',      [AuthController::class, 'showLoginDosen'])->name('login.dosen');
     Route::get('/login/admin',      [AuthController::class, 'showLoginAdmin'])->name('login.admin');
+
+    // ✅ FIXED: masing-masing role punya method sendiri
+    Route::post('/login/mahasiswa', [AuthController::class, 'loginMahasiswa']);
+    Route::post('/login/dosen',     [AuthController::class, 'loginDosen']);
+    Route::post('/login/admin',     [AuthController::class, 'loginAdmin']);
 });
 
 // ── Logout ────────────────────────────────────────────────────
@@ -32,30 +38,17 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function () {
 
 // ── DOSEN ─────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->group(function () {
-    Route::get('/dashboard',            [DosenController::class, 'dashboard'])->name('dashboard');
-    Route::get('/verifikasi',           [DosenController::class, 'listPengajuan'])->name('verifikasi');
-    Route::get('/pengajuan/{pengajuan}',[DosenController::class, 'show'])->name('pengajuan.show');
-    Route::post('/pengajuan/{pengajuan}/approve', [DosenController::class, 'approve'])->name('pengajuan.approve');
-    Route::post('/pengajuan/{pengajuan}/reject',  [DosenController::class, 'reject'])->name('pengajuan.reject');
-    // Halaman canvas e-sign
-    // GET /dosen/pengajuan/{pengajuan}/ttd
-    Route::get('pengajuan/{pengajuan}/ttd',  [App\Http\Controllers\TandaTanganController::class, 'show'])
-         ->name('ttd.show');
- 
-    // Simpan TTD dari canvas
-    // POST /dosen/pengajuan/{pengajuan}/ttd
-    Route::post('pengajuan/{pengajuan}/ttd', [App\Http\Controllers\TandaTanganController::class, 'store'])
-         ->name('ttd.store');
- 
-    // Stream gambar TTD (file tidak publik, lewat controller)
-    // GET /dosen/ttd/{tandaTangan}/gambar
-    Route::get('ttd/{tandaTangan}/gambar', [App\Http\Controllers\TandaTanganController::class, 'gambar'])
-         ->name('ttd.gambar');
- 
-    // Hapus TTD
-    // DELETE /dosen/ttd/{tandaTangan}
-    Route::delete('ttd/{tandaTangan}', [App\Http\Controllers\TandaTanganController::class, 'destroy'])
-         ->name('ttd.destroy');
+    Route::get('/dashboard',                              [DosenController::class, 'dashboard'])->name('dashboard');
+    Route::get('/verifikasi',                             [DosenController::class, 'listPengajuan'])->name('verifikasi');
+    Route::get('/pengajuan/{pengajuan}',                  [DosenController::class, 'show'])->name('pengajuan.show');
+    Route::post('/pengajuan/{pengajuan}/approve',         [DosenController::class, 'approve'])->name('pengajuan.approve');
+    Route::post('/pengajuan/{pengajuan}/reject',          [DosenController::class, 'reject'])->name('pengajuan.reject');
+
+    // TTD Digital (Jenny)
+    Route::get('/pengajuan/{pengajuan}/ttd',              [TandaTanganController::class, 'show'])->name('ttd.show');
+    Route::post('/pengajuan/{pengajuan}/ttd',             [TandaTanganController::class, 'store'])->name('ttd.store');
+    Route::get('/ttd/{tandaTangan}/gambar',               [TandaTanganController::class, 'gambar'])->name('ttd.gambar');
+    Route::delete('/ttd/{tandaTangan}',                   [TandaTanganController::class, 'destroy'])->name('ttd.destroy');
 });
 
 // ── ADMIN ─────────────────────────────────────────────────────
