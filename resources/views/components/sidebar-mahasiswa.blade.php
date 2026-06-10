@@ -3,19 +3,24 @@
     <nav class="sidebar-menu">
         <ul>
             <li class="{{ request()->is('dashboard') ? 'active' : '' }}">
-                <a href="/dashboard"><span class="sidebar-icon">&#128200;</span> Dashboard</a>
+                <a href="{{ route('mahasiswa.dashboard') }}">
+                    <span class="sidebar-icon">&#128200;</span> Dashboard
+                </a>
             </li>
             <li class="{{ request()->is('pengajuan') ? 'active' : '' }}">
-                <a href="/pengajuan"><span class="sidebar-icon">&#10133;</span> Ajukan Layanan</a>
+                <a href="{{ route('mahasiswa.pengajuan') }}">
+                    <span class="sidebar-icon">&#10133;</span> Ajukan Layanan
+                </a>
             </li>
             <li class="{{ request()->is('tracking') ? 'active' : '' }}">
-                <a href="/tracking"><span class="sidebar-icon">&#128221;</span> Riwayat Pengajuan</a>
+                <a href="{{ route('mahasiswa.tracking') }}">
+                    <span class="sidebar-icon">&#128221;</span> Riwayat Pengajuan
+                </a>
             </li>
         </ul>
     </nav>
     <div class="sidebar-bottom">
         <a href="#" class="sidebar-settings"><span class="sidebar-icon">&#9881;</span> Settings</a>
-
         <form method="POST" action="{{ route('logout') }}" style="margin:0;">
             @csrf
             <button type="submit" class="sidebar-logout"
@@ -25,11 +30,9 @@
         </form>
     </div>
 </div>
-
 <button id="sidebarToggle" class="sidebar-hamburger" aria-label="Toggle Sidebar">
     <span></span><span></span><span></span>
 </button>
-
 <script>
     const sidebar = document.getElementById('sidebarMahasiswa');
     const toggleBtn = document.getElementById('sidebarToggle');
