@@ -6,105 +6,130 @@
 @section('sidebar')
     @include('components.sidebar-mahasiswa')
 @endsection
-@section('navbar')
-<div class="navbar-content">
-    <h1>TRACKING PENGAJUAN</h1>
-    <div class="user-info">
-        <span>Universitas Muhammadiyah Surakarta</span>
-        <span>{{ auth()->user()->prodi ?? '' }}</span>
-    </div>
-</div>
-@endsection
 @section('content')
 <script>document.body.classList.add('mahasiswa-page');</script>
-<div class="tracking-main">
-    <p>Lacak status layanan akademik Anda secara real-time.</p>
+<div class="tracking-wrap">
 
-    @if($pengajuan->isEmpty())
-        <div style="text-align:center;padding:3rem;color:#6b7280;">
-            <p style="font-size:1.1rem;">Belum ada pengajuan.</p>
-            <a href="{{ route('mahasiswa.pengajuan') }}"
-               style="display:inline-block;margin-top:12px;padding:10px 24px;background:#a259e6;color:#fff;border-radius:8px;text-decoration:none;">
-                Ajukan Layanan Sekarang →
-            </a>
+    <a href="/riwayat" class="tracking-back">← Kembali ke Riwayat</a>
+
+    <div class="tracking-title-row">
+        <div>
+            <h1 class="tracking-title">TRACKING PENGAJUAN</h1>
+            <p class="tracking-sub">Lacak status layanan akademik Anda secara real-time.</p>
         </div>
-    @else
-        @foreach($pengajuan as $p)
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px;">
+        <div class="tracking-actions">
+            <button class="btn-bantuan">BANTUAN</button>
+            <button class="btn-refresh">REFRESH STATUS</button>
+        </div>
+    </div>
 
-            {{-- Info pengajuan --}}
-            <div class="tracking-info">
+    <div class="tracking-body">
+        {{-- Kolom kiri --}}
+        <div class="tracking-left">
+            <div class="tracking-info-boxes">
                 <div class="tracking-box">
-                    <div style="font-weight:700;font-size:1.08rem;">ID PENGAJUAN</div>
-                    <div>{{ $p->kode }}</div>
+                    <div class="tbox-label">ID PENGAJUAN</div>
+                    <div class="tbox-val">REQ-2023-08912</div>
                 </div>
                 <div class="tracking-box">
-                    <div style="font-weight:700;font-size:1.08rem;">JENIS LAYANAN</div>
-                    <div>{{ \App\Models\Pengajuan::JENIS_LABEL[$p->jenis_layanan] ?? $p->jenis_layanan }}</div>
+                    <div class="tbox-label">JENIS LAYANAN</div>
+                    <div class="tbox-val">Surat Keterangan</div>
                 </div>
                 <div class="tracking-box">
-                    <div style="font-weight:700;font-size:1.08rem;">STATUS TERAKHIR</div>
-                    <div>
-                        <span class="status-badge {{ $p->status === 'selesai' ? 'selesai' : ($p->status === 'ditolak' ? 'ditolak' : 'dalam-proses') }}">
-                            {{ \App\Models\Pengajuan::STATUS_LABEL[$p->status] ?? $p->status }}
-                        </span>
-                    </div>
+                    <div class="tbox-label">STATUS TERAKHIR</div>
+                    <div class="tbox-val"><span class="status-badge dalam-proses">IN REVIEW</span></div>
                 </div>
             </div>
 
-            {{-- Progress bar --}}
-            @php
-                $progress = match($p->status) {
-                    'submitted'        => 25,
-                    'admin_verifikasi' => 50,
-                    'dosen_ttd'        => 75,
-                    'selesai'          => 100,
-                    'ditolak'          => 100,
-                    default            => 0,
-                };
-            @endphp
-            <div class="tracking-progress" style="margin-top:16px;">
-                <div class="progress-label">PROGRES KESELURUHAN</div>
+            <div class="tracking-progress-box">
+                <div class="progress-row">
+                    <span class="progress-label">PROGRES KESELURUHAN</span>
+                    <span class="progress-pct">75%</span>
+                </div>
                 <div class="progress-bar-bg">
-                    <div class="progress-bar"
-                         style="width:{{ $progress }}%;background:{{ $p->status === 'ditolak' ? '#ef4444' : '#a259e6' }};"></div>
+                    <div class="progress-bar" style="width:75%"></div>
                 </div>
             </div>
 
-            {{-- Log aktivitas --}}
-            @if($p->log->isNotEmpty())
-            <div class="log-activity" style="margin-top:16px;">
-                <h2>LOG AKTIVITAS</h2>
-                <div class="activity-list">
-                    @foreach($p->log as $log)
-                    <div class="activity-item">
-                        <div class="activity-status"
-                             style="{{ $log->status_ke === 'ditolak' ? 'background:#fee2e2;color:#ef4444;border-color:#ef4444;' : '' }}">
-                            ✓
+            <div class="log-section">
+                <h2 class="log-title">📅 LOG AKTIVITAS</h2>
+
+                <div class="activity-item done">
+                    <div class="activity-icon">✓</div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <span class="activity-name">SUBMITTED</span>
+                            <span class="status-badge selesai">SELESAI</span>
                         </div>
-                        <div class="activity-content">
-                            <div class="activity-title">
-                                {{ \App\Models\Pengajuan::STATUS_LABEL[$log->status_ke] ?? strtoupper($log->status_ke) }}
-                                <span class="status-badge selesai">SELESAI</span>
-                            </div>
-                            <div class="activity-date">
-                                {{ $log->created_at->format('d M Y, H:i') }} WIB
-                                — oleh {{ $log->user->name ?? 'Sistem' }}
-                            </div>
-                            @if($log->catatan)
-                            <div class="activity-note">
-                                <span style="color:#888;font-size:0.97em;">{{ $log->catatan }}</span>
-                            </div>
-                            @endif
-                        </div>
+                        <div class="activity-date">12 Okt 2023, 09:00</div>
+                        <div class="activity-desc">Pengajuan telah diterima oleh sistem.</div>
+                        <div class="activity-note">💬 Catatan: "Dokumen awal telah diunggah dengan benar."</div>
                     </div>
-                    @endforeach
+                </div>
+
+                <div class="activity-item done">
+                    <div class="activity-icon">✓</div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <span class="activity-name">VERIFIED BY ADMIN</span>
+                            <span class="status-badge selesai">SELESAI</span>
+                        </div>
+                        <div class="activity-date">12 Okt 2023, 14:20</div>
+                        <div class="activity-desc">Pengecekan kelengkapan berkas oleh Biro Administrasi.</div>
+                        <div class="activity-note">💬 Catatan: "Data mahasiswa sesuai dengan database SIAKAD."</div>
+                    </div>
+                </div>
+
+                <div class="activity-item progress">
+                    <div class="activity-icon">⏳</div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <span class="activity-name">WAITING LECTURER SIGNATURE</span>
+                            <span class="status-badge dalam-proses">DALAM PROSES</span>
+                        </div>
+                        <div class="activity-date">13 Okt 2023, 08:00</div>
+                        <div class="activity-desc">Menunggu tanda tangan digital dari Kaprodi / Dosen Wali.</div>
+                        <div class="activity-note">💬 Catatan: "Sedang dalam antrean tanda tangan Bapak Dr. Ahmad Yani."</div>
+                    </div>
+                </div>
+
+                <div class="activity-item pending">
+                    <div class="activity-icon activity-icon--gray">✓</div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <span class="activity-name">COMPLETED (READY FOR PICKUP)</span>
+                        </div>
+                        <div class="activity-desc">Dokumen sudah tersedia dan siap diambil di loket BAA.</div>
+                        <div class="activity-note">💬 Catatan: "QR Code akan aktif setelah status selesai."</div>
+                    </div>
                 </div>
             </div>
-            @endif
-
         </div>
-        @endforeach
-    @endif
+
+        {{-- Kolom kanan --}}
+        <div class="tracking-right">
+            <div class="info-card info-card--purple">
+                <div class="info-card-title">📍 LOKASI PENGAMBILAN</div>
+                <p>Layanan dilakukan di loket resmi Biro Administrasi Akademik (BAA) Universitas Muhammadiyah Surakarta.</p>
+                <div class="loket-box">
+                    <div class="loket-label">LOKET PELAYANAN:</div>
+                    <div class="loket-val">Gedung Siti Walidah, Lantai 2</div>
+                    <div class="loket-jam">Jam Operasional: 08.00 - 15.00 WIB</div>
+                </div>
+            </div>
+
+            <div class="info-card info-card--teal">
+                <div class="info-card-title">⚠️ PENTING!</div>
+                <ul class="penting-list">
+                    <li>Bawa Kartu Tanda Mahasiswa (KTM) asli saat pengambilan.</li>
+                    <li>Pengambilan tidak dapat diwakilkan kecuali dengan surat kuasa.</li>
+                    <li>Pastikan data pada dokumen digital sudah sesuai sebelum dicetak.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<footer class="dashboard-footer">© 2026 Universitas Muhammadiyah Surakarta. Smart Academic Service Tracking.</footer>
 @endsection

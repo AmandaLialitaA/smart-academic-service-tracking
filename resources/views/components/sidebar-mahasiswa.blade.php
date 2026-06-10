@@ -1,52 +1,26 @@
-<div id="sidebarMahasiswa" class="sidebar-mahasiswa">
-    <div class="sidebar-header">Smart Academic Service Tracking System UMS</div>
-    <nav class="sidebar-menu">
-        <ul>
-            <li class="{{ request()->is('dashboard') ? 'active' : '' }}">
-                <a href="{{ route('mahasiswa.dashboard') }}">
-                    <span class="sidebar-icon">&#128200;</span> Dashboard
-                </a>
-            </li>
-            <li class="{{ request()->is('pengajuan') ? 'active' : '' }}">
-                <a href="{{ route('mahasiswa.pengajuan') }}">
-                    <span class="sidebar-icon">&#10133;</span> Ajukan Layanan
-                </a>
-            </li>
-            <li class="{{ request()->is('tracking') ? 'active' : '' }}">
-                <a href="{{ route('mahasiswa.tracking') }}">
-                    <span class="sidebar-icon">&#128221;</span> Riwayat Pengajuan
-                </a>
-            </li>
-        </ul>
+<aside class="sidebar sidebar-mahasiswa">
+    <nav class="sidebar-nav">
+        <a href="/dashboard" class="{{ request()->is('dashboard') ? 'active' : '' }}">
+            <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>
+            Dashboard
+        </a>
+        <a href="/pengajuan" class="{{ request()->is('pengajuan*') ? 'active' : '' }}">
+            <span class="nav-icon"><i data-lucide="file-plus"></i></span>
+            Ajukan Layanan
+        </a>
+        <a href="/riwayat" class="{{ request()->is('riwayat') ? 'active' : '' }}">
+            <span class="nav-icon"><i data-lucide="clock"></i></span>
+            Riwayat Pengajuan
+        </a>
     </nav>
-    <div class="sidebar-bottom">
-        <a href="#" class="sidebar-settings"><span class="sidebar-icon">&#9881;</span> Settings</a>
-        <form method="POST" action="{{ route('logout') }}" style="margin:0;">
-            @csrf
-            <button type="submit" class="sidebar-logout"
-                style="background:none;border:none;cursor:pointer;width:100%;text-align:left;padding:0;font:inherit;color:inherit;display:flex;align-items:center;gap:4px;">
-                <span class="sidebar-icon">&#128682;</span> Logout
-            </button>
-        </form>
+    <div class="sidebar-footer">
+        <a href="/settings">
+            <span class="nav-icon"><i data-lucide="settings"></i></span>
+            Settings
+        </a>
+        <a href="/login" style="color:#E53935;">
+            <span class="nav-icon"><i data-lucide="log-out" style="color:#E53935;"></i></span>
+            Logout
+        </a>
     </div>
-</div>
-<button id="sidebarToggle" class="sidebar-hamburger" aria-label="Toggle Sidebar">
-    <span></span><span></span><span></span>
-</button>
-<script>
-    const sidebar = document.getElementById('sidebarMahasiswa');
-    const toggleBtn = document.getElementById('sidebarToggle');
-    function closeSidebarOnOutsideClick(e) {
-        if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-            sidebar.classList.remove('open');
-        }
-    }
-    toggleBtn.onclick = function() {
-        sidebar.classList.toggle('open');
-        if (sidebar.classList.contains('open')) {
-            document.body.addEventListener('click', closeSidebarOnOutsideClick);
-        } else {
-            document.body.removeEventListener('click', closeSidebarOnOutsideClick);
-        }
-    };
-</script>
+</aside>

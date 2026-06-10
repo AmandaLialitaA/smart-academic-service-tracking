@@ -124,9 +124,4 @@ class Pengajuan extends Model
     {
         return $query->where('mahasiswa_id', $userId);
     }
-
-    public function tandaTangan()
-    {
-        return $this->hasOne(\App\Models\TandaTangan::class, 'pengajuan_id');
-    }
 }

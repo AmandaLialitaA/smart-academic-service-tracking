@@ -6,45 +6,40 @@
     <title>@yield('title', 'UMS Smart Tracking')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('head')
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-@hasSection('sidebar')
+    <div class="topbar-global">
+        <div class="topbar-left">
+            <i data-lucide="graduation-cap" style="width:20px;height:20px;color:#a259e6;"></i>
+            <span class="topbar-title">Smart Academic Service Tracking System UMS</span>
+        </div>
+        <div class="topbar-right">
+            <i data-lucide="bell" class="topbar-notif"></i>
+            <div class="topbar-user">
+                <span class="topbar-user-name">@yield('topbar_name', 'student')</span>
+                <span class="topbar-user-role">@yield('topbar_role', 'UMS Academic')</span>
+            </div>
+            <img src="https://i.pravatar.cc/36" class="topbar-avatar" alt="avatar">
+        </div>
+    </div>
+
     <div class="main-layout">
         <aside class="sidebar">
             @yield('sidebar')
         </aside>
         <div class="main-content">
-            <nav class="navbar">
-                @yield('navbar')
-            </nav>
+            @hasSection('navbar')
+                <nav class="navbar">
+                    @yield('navbar')
+                </nav>
+            @endif
             <main>
-                @if(session('success'))
-                    <div class="alert alert-success">✔ {{ session('success') }}</div>
-                @endif
-                @if(session('error'))
-                    <div class="alert alert-error">✘ {{ session('error') }}</div>
-                @endif
-                @if($errors->any())
-                    <div class="alert alert-error">
-                        <ul style="margin:0;padding-left:20px;">
-                            @foreach($errors->all() as $err)
-                                <li>{{ $err }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
                 @yield('content')
             </main>
         </div>
     </div>
-@else
-    {{-- Landing / halaman full-width --}}
-    @if(session('success'))
-        <div class="alert alert-success" style="position:fixed;top:12px;right:12px;z-index:9999;max-width:400px;">
-            ✔ {{ session('success') }}
-        </div>
-    @endif
-    @yield('content')
-@endif
+
+    <script>lucide.createIcons();</script>
 </body>
 </html>
