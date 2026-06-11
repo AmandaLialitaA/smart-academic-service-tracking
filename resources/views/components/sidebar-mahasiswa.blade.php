@@ -18,9 +18,13 @@
             <span class="nav-icon"><i data-lucide="settings"></i></span>
             Settings
         </a>
-        <a href="/login" style="color:#E53935;">
+        <a href="/logout" style="color:#E53935;"
+           onclick="event.preventDefault(); document.getElementById('logout-form-mhs').submit();">
             <span class="nav-icon"><i data-lucide="log-out" style="color:#E53935;"></i></span>
             Logout
         </a>
+        <form id="logout-form-mhs" action="/logout" method="POST" style="display:none;">
+            @csrf
+        </form>
     </div>
 </aside>

@@ -26,7 +26,6 @@
 
                 <p class="brand-eyebrow" id="brand-eyebrow">Portal Mahasiswa</p>
 
-                {{-- Headline --}}
                 <h1 class="brand-title" id="brand-title">
                     EFISIENSI<br>
                     <span class="highlight">AKADEMIK</span><br>
@@ -34,7 +33,6 @@
                     ANDA.
                 </h1>
 
-                {{-- Desc --}}
                 <p class="brand-desc" id="brand-desc">
                     Sistem pelacakan layanan administrasi terpadu
                     Universitas Muhammadiyah Surakarta yang
@@ -42,7 +40,6 @@
                 </p>
             </div>
 
-            {{-- Features bottom --}}
             <div class="brand-features-bottom">
                 <div class="feature-with-bar">
                     <div class="vertical-bar"></div>
@@ -92,10 +89,16 @@
                 </button>
             </div>
 
-            {{-- Form --}}
-            <form action="/login" method="POST" class="login-form-fields">
+            {{-- Form — action & id difix --}}
+            <form action="/login/mahasiswa" method="POST" class="login-form-fields" id="login-form">
                 @csrf
-                <input type="hidden" name="role" id="selected-role" value="mahasiswa">
+
+                {{-- Error display --}}
+                @if ($errors->any())
+                    <div class="login-error">
+                        {{ $errors->first('email') }}
+                    </div>
+                @endif
 
                 <div class="form-group">
                     <label for="identifier" id="label-identifier">NIM / EMAIL STUDENT</label>
@@ -107,14 +110,16 @@
                                 <path d="M4 20c0-4 4-7 8-7s8 3 8 7"/>
                             </svg>
                         </span>
-                        <input type="text" id="identifier" name="identifier"
-                               required placeholder="L200234258">
+                        {{-- name="email" sesuai AuthController --}}
+                        <input type="text" id="identifier" name="email"
+                               required placeholder="L200234258"
+                               value="{{ old('email') }}">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="password">PASSWORD
-                        <a href="/lupa-password?role={{ request()->get('role', 'mahasiswa') }}" class="forgot-link">
+                        <a href="/lupa-password" class="forgot-link" id="forgot-link">
                             LUPA PASSWORD?
                         </a>
                     </label>
@@ -152,7 +157,8 @@
 
             <div class="login-footer-alt" id="footer-alt">
                 <span>Belum punya akun?</span>
-                <button class="alt-btn-contact" id="btn-kontak" onclick="window.location='/kontak-admin?role=mahasiswa'">
+                <button class="alt-btn-contact" id="btn-kontak"
+                        onclick="window.location='/kontak-admin?role=mahasiswa'">
                     HUBUNGI ADMIN IT
                 </button>
             </div>
@@ -164,6 +170,18 @@
     </footer>
 </div>
 
+<style>
+.login-error {
+    background: #fee2e2;
+    border: 2px solid #ef4444;
+    color: #991b1b;
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+}
+</style>
+
 <script>
 function togglePassword() {
     const pwd = document.getElementById('password');
@@ -171,9 +189,15 @@ function togglePassword() {
 }
 
 const tabs = {
-    mahasiswa: { label: 'NIM / EMAIL STUDENT', placeholder: 'L200234258' },
-    dosen: { label: 'NIDN / EMAIL INSTITUSI', placeholder: '0627018801' },
-    admin: { label: 'NIP / USERNAME', placeholder: 'Masukkan ID Pegawai' },
+    mahasiswa: { label: 'NIM / EMAIL STUDENT',   placeholder: 'budi@student.ums.ac.id' },
+    dosen:     { label: 'NIDN / EMAIL INSTITUSI', placeholder: 'ahmad.yani@ums.ac.id' },
+    admin:     { label: 'NIP / EMAIL ADMIN',      placeholder: 'admin@ums.ac.id' },
+};
+
+const formActions = {
+    mahasiswa: '/login/mahasiswa',
+    dosen:     '/login/dosen',
+    admin:     '/login/admin',
 };
 
 const roleConfig = {
@@ -181,10 +205,8 @@ const roleConfig = {
         eyebrow: 'Portal Mahasiswa',
         title: 'EFISIENSI<br><span class="highlight">AKADEMIK</span><br>DI TANGAN<br>ANDA.',
         desc: 'Sistem pelacakan layanan administrasi terpadu Universitas Muhammadiyah Surakarta yang modern, transparan, dan akuntabel.',
-        value1: '100%',
-        label1: 'Digital Workflow',
-        value2: 'REALTIME',
-        label2: 'Status Tracking',
+        value1: '100%', label1: 'Digital Workflow',
+        value2: 'REALTIME', label2: 'Status Tracking',
         rolePill: 'Portal Mahasiswa',
         subtitle: 'Silakan masuk untuk mengakses layanan akademik Anda.',
         roleNote: 'Akses portal mahasiswa untuk mengajukan, melacak, dan menyelesaikan layanan akademik Anda.'
@@ -193,10 +215,8 @@ const roleConfig = {
         eyebrow: 'Portal Dosen',
         title: 'VERIFIKASI<br><span class="highlight">AKADEMIK</span><br>LEBIH CEPAT<br>DAN TEPAT.',
         desc: 'Pantau pengajuan mahasiswa, tinjau dokumen, dan proses keputusan akademik dengan antarmuka yang lebih terarah untuk dosen.',
-        value1: '24/7',
-        label1: 'Review Terkelola',
-        value2: '90%',
-        label2: 'Pengajuan Terverifikasi',
+        value1: '24/7', label1: 'Review Terkelola',
+        value2: '90%', label2: 'Pengajuan Terverifikasi',
         rolePill: 'Portal Dosen',
         subtitle: 'Silakan masuk untuk memverifikasi dan menindaklanjuti layanan akademik mahasiswa.',
         roleNote: 'Tampilan dosen dirancang untuk mempercepat peninjauan proses layanan dan komunikasi akademik.'
@@ -205,10 +225,8 @@ const roleConfig = {
         eyebrow: 'Portal Admin',
         title: 'KONTROL<br><span class="highlight">LAYANAN</span><br>AKADEMIK<br>TERPUSAT.',
         desc: 'Kelola keseluruhan alur layanan akademik, menjaga akurasi data, dan mengawasi proses administrasi secara terpusat.',
-        value1: '100%',
-        label1: 'Kontrol Operasional',
-        value2: 'REALTIME',
-        label2: 'Monitoring Sistem',
+        value1: '100%', label1: 'Kontrol Operasional',
+        value2: 'REALTIME', label2: 'Monitoring Sistem',
         rolePill: 'Portal Admin',
         subtitle: 'Silakan masuk untuk mengelola proses layanan akademik dan operasional kampus.',
         roleNote: 'Tampilan admin dibuat dengan fokus pada kontrol, auditing, dan kinerja operasional.'
@@ -217,22 +235,23 @@ const roleConfig = {
 
 function applyRole(role) {
     const config = roleConfig[role];
-    const main = document.getElementById('login-main');
 
-    const forgotLink = document.querySelector('.forgot-link');
-    if (forgotLink) forgotLink.href = '/lupa-password?role=' + role;
+    // ✅ Ganti action form sesuai role
+    document.getElementById('login-form').action = formActions[role];
 
-    // Sembunyikan footer alt kalau role admin
+    // Update forgot link
+    document.getElementById('forgot-link').href = '/lupa-password?role=' + role;
+
+    // Sembunyikan footer alt kalau admin
     const footerAlt = document.getElementById('footer-alt');
-    if (footerAlt) {
-        footerAlt.style.display = role === 'admin' ? 'none' : 'flex';
-    }
+    if (footerAlt) footerAlt.style.display = role === 'admin' ? 'none' : 'flex';
 
-    // Update link kontak sesuai role
+    // Update kontak button
     const btnKontak = document.getElementById('btn-kontak');
     if (btnKontak) btnKontak.onclick = () => window.location = '/kontak-admin?role=' + role;
 
-    main.dataset.role = role;
+    // Update konten kiri
+    document.getElementById('login-main').dataset.role = role;
     document.getElementById('brand-eyebrow').textContent = config.eyebrow;
     document.getElementById('brand-title').innerHTML = config.title;
     document.getElementById('brand-desc').textContent = config.desc;
@@ -240,21 +259,20 @@ function applyRole(role) {
     document.getElementById('feature-label-1').textContent = config.label1;
     document.getElementById('feature-value-2').textContent = config.value2;
     document.getElementById('feature-label-2').textContent = config.label2;
+
+    // Update konten kanan
     document.getElementById('role-pill').textContent = config.rolePill;
     document.getElementById('login-subtitle').textContent = config.subtitle;
     document.getElementById('login-role-note').textContent = config.roleNote;
     document.getElementById('label-identifier').textContent = tabs[role].label;
     document.getElementById('identifier').placeholder = tabs[role].placeholder;
-    document.getElementById('selected-role').value = role;
 }
 
 document.querySelectorAll('.role-btn').forEach(btn => {
     btn.addEventListener('click', function () {
         document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
-
-        const role = this.id.replace('tab-', '');
-        applyRole(role);
+        applyRole(this.id.replace('tab-', ''));
     });
 });
 

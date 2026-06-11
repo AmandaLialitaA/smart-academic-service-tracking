@@ -16,26 +16,21 @@ class DatabaseSeeder extends Seeder
             'email'    => 'admin@ums.ac.id',
             'password' => Hash::make('admin123'),
             'role'     => 'admin',
-            'jabatan'  => 'Biro Administrasi Akademik',
         ]);
 
         // ── Dosen ────────────────────────────────────────────
         User::create([
-            'name'    => 'Dr. Ahmad Yani, S.T., M.T.',
-            'email'   => 'ahmad.yani@ums.ac.id',
-            'password'=> Hash::make('dosen123'),
-            'role'    => 'dosen',
-            'nidn'    => '0612018001',
-            'jabatan' => 'Kaprodi Teknik Informatika',
+            'name'     => 'Dr. Ahmad Yani, S.T., M.T.',
+            'email'    => 'ahmad.yani@ums.ac.id',
+            'password' => Hash::make('dosen123'),
+            'role'     => 'dosen',
         ]);
 
         User::create([
-            'name'    => 'Dr. Siti Rahayu, M.Pd.',
-            'email'   => 'siti.rahayu@ums.ac.id',
-            'password'=> Hash::make('dosen123'),
-            'role'    => 'dosen',
-            'nidn'    => '0705019002',
-            'jabatan' => 'Dosen Wali - Informatika',
+            'name'     => 'Dr. Siti Rahayu, M.Pd.',
+            'email'    => 'siti.rahayu@ums.ac.id',
+            'password' => Hash::make('dosen123'),
+            'role'     => 'dosen',
         ]);
 
         // ── Mahasiswa ─────────────────────────────────────────
@@ -63,11 +58,11 @@ class DatabaseSeeder extends Seeder
         $this->command->table(
             ['Role', 'Email', 'Password'],
             [
-                ['Admin',      'admin@ums.ac.id',       'admin123'],
-                ['Dosen',      'ahmad.yani@ums.ac.id',  'dosen123'],
-                ['Dosen',      'siti.rahayu@ums.ac.id', 'dosen123'],
-                ['Mahasiswa',  'budi@student.ums.ac.id','mahasiswa123'],
-                ['Mahasiswa',  'sari@student.ums.ac.id','mahasiswa123'],
+                ['Admin',     'admin@ums.ac.id',        'admin123'],
+                ['Dosen',     'ahmad.yani@ums.ac.id',   'dosen123'],
+                ['Dosen',     'siti.rahayu@ums.ac.id',  'dosen123'],
+                ['Mahasiswa', 'budi@student.ums.ac.id', 'mahasiswa123'],
+                ['Mahasiswa', 'sari@student.ums.ac.id', 'mahasiswa123'],
             ]
         );
     }
