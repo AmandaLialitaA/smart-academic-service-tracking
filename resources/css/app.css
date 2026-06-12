@@ -320,6 +320,13 @@ body, html {
     color: #a259e6;
     font-weight: 800;
     font-size: 0.95rem;
+    min-width: 0;
+}
+
+.topbar-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .topbar-logo-icon {

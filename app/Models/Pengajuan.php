@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Pengajuan extends Model
 {
@@ -47,11 +48,76 @@ class Pengajuan extends Model
     ];
 
     const JENIS_LABEL = [
-        'aktif-kuliah' => 'Surat Keterangan Aktif Kuliah',
-        'transkrip'    => 'Transkrip Nilai Sementara',
-        'cuti'         => 'Pengajuan Cuti Akademik',
-        'legalisir'    => 'Legalisir Dokumen',
+        'cuti'      => 'Pengajuan Cuti Akademik',
+        'legalisir' => 'Legalisir Ijazah Elektronik',
+        'magang'    => 'Surat Pengantar Magang',
+        'lainnya'   => 'Layanan Lainnya',
     ];
+
+    const DISPLAY_STATUS_MAP = [
+        'submitted'        => 'submitted',
+        'admin_verifikasi' => 'waiting',
+        'dosen_ttd'        => 'waiting',
+        'selesai'          => 'completed',
+        'ditolak'          => 'rejected',
+    ];
+
+    const DISPLAY_LABEL = [
+        'submitted' => 'Submitted',
+        'waiting'   => 'Waiting',
+        'completed' => 'Completed',
+        'rejected'  => 'Rejected',
+    ];
+
+    public function getDisplayStatusAttribute(): string
+    {
+        return self::DISPLAY_STATUS_MAP[$this->status] ?? 'submitted';
+    }
+
+    public function getDisplayStatusLabelAttribute(): string
+    {
+        return self::STATUS_LABEL[$this->status] ?? ucfirst($this->status);
+    }
+
+    public function getStatusBadgeClassAttribute(): string
+    {
+        return match ($this->status) {
+            'submitted'        => 'submitted',
+            'admin_verifikasi' => 'waiting',
+            'dosen_ttd'        => 'ttd',
+            'selesai'          => 'completed',
+            'ditolak'          => 'rejected',
+            default            => 'submitted',
+        };
+    }
+
+    public function getJenisLabelAttribute(): string
+    {
+        return self::JENIS_LABEL[$this->jenis_layanan] ?? $this->jenis_layanan;
+    }
+
+    public function getProgressPercentAttribute(): int
+    {
+        return match ($this->status) {
+            'submitted'        => 25,
+            'admin_verifikasi' => 50,
+            'dosen_ttd'        => $this->tanggal_ttd ? 85 : 75,
+            'selesai'          => 100,
+            'ditolak'          => 0,
+            default            => 10,
+        };
+    }
+
+    public static function backendStatusesForDisplay(string $display): array
+    {
+        return match ($display) {
+            'submitted' => ['submitted'],
+            'waiting'   => ['admin_verifikasi', 'dosen_ttd'],
+            'completed' => ['selesai'],
+            'rejected'  => ['ditolak'],
+            default     => [],
+        };
+    }
 
     // ── Validasi lompat tahap ─────────────────────────────────
     /**
@@ -112,6 +178,11 @@ class Pengajuan extends Model
     public function log(): HasMany
     {
         return $this->hasMany(LogPengajuan::class)->orderBy('created_at', 'asc');
+    }
+
+    public function tandaTangan(): HasOne
+    {
+        return $this->hasOne(TandaTangan::class);
     }
 
     // ── Scopes ────────────────────────────────────────────────

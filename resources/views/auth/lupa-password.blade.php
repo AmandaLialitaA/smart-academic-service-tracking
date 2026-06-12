@@ -79,37 +79,42 @@
                 </button>
             </div>
 
+            @if(session('status'))
+                <div style="background:#f0fff0;border:1px solid #c7ecc7;padding:12px;margin-bottom:12px;color:#0a7a0a;">
+                    Instruksi reset password telah dikirim ke email Anda. Cek inbox atau folder spam.
+                </div>
+            @endif
+            @if($errors->any())
+                <div style="background:#fee2e2;color:#b91c1c;padding:10px;margin-bottom:12px;">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
             {{-- Step 1: Input --}}
             <div id="step1">
-                <div class="form-group">
-                    <label id="label-identifier">NIM / EMAIL STUDENT</label>
-                    <div class="input-icon-group">
-                        <span class="input-icon">
-                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="8" r="4"/>
-                                <path d="M4 20c0-4 4-7 8-7s8 3 8 7"/>
-                            </svg>
-                        </span>
-                        <input type="text" id="emailInput" class="login-input" placeholder="L200234258">
+                <form method="POST" action="{{ route('password.email') }}">
+                    @csrf
+                    <div class="form-group">
+                        <label id="label-identifier">EMAIL AKUN</label>
+                        <div class="input-icon-group">
+                            <span class="input-icon">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="8" r="4"/>
+                                    <path d="M4 20c0-4 4-7 8-7s8 3 8 7"/>
+                                </svg>
+                            </span>
+                            <input type="email" name="email" id="emailInput" class="login-input" placeholder="email@ums.ac.id" value="{{ old('email') }}" required>
+                        </div>
                     </div>
-                </div>
 
-                <div class="lp-info-box">
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="flex-shrink:0;">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    <span id="infoText">Masukkan NIM atau email student (@student.ums.ac.id) yang terdaftar di sistem.</span>
-                </div>
+                    <div class="lp-info-box">
+                        <span id="infoText">Masukkan email yang terdaftar di sistem. Link reset akan dikirim ke email tersebut.</span>
+                    </div>
 
-                <button type="button" class="login-btn" onclick="showStep2()">
-                    KIRIM INSTRUKSI RESET
-                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                    </svg>
-                </button>
+                    <button type="submit" class="login-btn">
+                        KIRIM INSTRUKSI RESET
+                    </button>
+                </form>
             </div>
 
             {{-- Step 2: Sukses --}}

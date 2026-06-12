@@ -7,61 +7,54 @@
     @include('components.sidebar-mahasiswa')
 @endsection
 @section('content')
-<script>document.body.classList.add('mahasiswa-page');</script>
 <div class="dashboard-main">
+    @if(session('success'))
+        <div style="background:#f0fff0;border:2px solid #27AE60;padding:14px 18px;margin-bottom:16px;color:#0a7a0a;font-weight:600;">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div style="background:#fff6f6;border:2px solid #E53935;padding:14px 18px;margin-bottom:16px;color:#a00;font-weight:600;">
+            {{ session('error') }}
+        </div>
+    @endif
 
     <div class="dashboard-header">
         <h2 class="dashboard-title">RIWAYAT PENGAJUAN</h2>
         <p class="dashboard-desc">Semua pengajuan layanan akademik yang pernah Anda buat.</p>
     </div>
 
-    {{-- Filter & Search --}}
-    <div class="riwayat-filter-bar">
-        <input type="text" class="riwayat-search" placeholder="🔍 Cari ID atau jenis layanan...">
+    <form method="GET" action="{{ route('mahasiswa.riwayat') }}" class="riwayat-filter-bar">
+        <input type="text" name="cari" class="riwayat-search" placeholder="Cari ID atau jenis layanan..." value="{{ request('cari') }}">
         <div class="riwayat-filter-group">
-            <select class="riwayat-select">
+            <select name="status" class="riwayat-select" onchange="this.form.submit()">
                 <option value="">Semua Status</option>
-                <option value="submitted">Submitted</option>
-                <option value="waiting">Waiting</option>
-                <option value="completed">Completed</option>
-                <option value="rejected">Rejected</option>
+                <option value="submitted" {{ request('status') === 'submitted' ? 'selected' : '' }}>Submitted</option>
+                <option value="waiting" {{ request('status') === 'waiting' ? 'selected' : '' }}>Waiting</option>
+                <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
+                <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
             </select>
-            <select class="riwayat-select">
+            <select name="jenis" class="riwayat-select" onchange="this.form.submit()">
                 <option value="">Semua Layanan</option>
-                <option>Surat Keterangan Aktif Kuliah</option>
-                <option>Transkrip Nilai Sementara</option>
-                <option>Pengajuan Cuti Akademik</option>
-                <option>Legalisir Ijazah Elektronik</option>
-                <option>Surat Pengantar Magang</option>
+                @foreach(\App\Models\Pengajuan::JENIS_LABEL as $key => $label)
+                    <option value="{{ $key }}" {{ request('jenis') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
             </select>
+            <button type="submit" class="btn-track" style="border:none;cursor:pointer;">Filter</button>
         </div>
-    </div>
+    </form>
 
-    {{-- Summary badges --}}
     <div class="dashboard-badges">
-        <div class="badge badge-submitted">
-            <div class="badge-label">SUBMITTED</div>
-            <div class="badge-count">2</div>
-        </div>
-        <div class="badge badge-waiting">
-            <div class="badge-label">WAITING</div>
-            <div class="badge-count">1</div>
-        </div>
-        <div class="badge badge-completed">
-            <div class="badge-label">COMPLETED</div>
-            <div class="badge-count">1</div>
-        </div>
-        <div class="badge badge-rejected">
-            <div class="badge-label">REJECTED</div>
-            <div class="badge-count">1</div>
-        </div>
+        <div class="badge badge-submitted"><div class="badge-label">SUBMITTED</div><div class="badge-count" data-stat="submitted">{{ $stats['submitted'] }}</div></div>
+        <div class="badge badge-waiting"><div class="badge-label">WAITING</div><div class="badge-count" data-stat="waiting">{{ $stats['waiting'] }}</div></div>
+        <div class="badge badge-completed"><div class="badge-label">COMPLETED</div><div class="badge-count" data-stat="completed">{{ $stats['completed'] }}</div></div>
+        <div class="badge badge-rejected"><div class="badge-label">REJECTED</div><div class="badge-count" data-stat="rejected">{{ $stats['rejected'] }}</div></div>
     </div>
 
-    {{-- Tabel --}}
     <section class="latest-requests">
         <div class="section-header">
             <h2>SEMUA PENGAJUAN</h2>
-            <span class="riwayat-count">Menampilkan 5 pengajuan</span>
+            <span class="riwayat-count">Menampilkan {{ $pengajuan->count() }} pengajuan</span>
         </div>
         <table class="requests-table">
             <thead>
@@ -75,51 +68,25 @@
                 </tr>
             </thead>
             <tbody>
+                @forelse($pengajuan as $item)
                 <tr>
-                    <td>REQ-2024-001</td>
-                    <td>Surat Keterangan Aktif Kuliah</td>
-                    <td>24 Mei 2024</td>
-                    <td><em>Dr. Ir. Wahyudin, M.T.</em></td>
-                    <td><span class="status-badge completed">Completed</span></td>
-                    <td><a href="/tracking" class="btn-track">🔎 Track</a></td>
+                    <td>{{ $item->kode }}</td>
+                    <td>{{ $item->jenis_label }}</td>
+                    <td>{{ $item->tanggal_submit?->format('d M Y') ?? '-' }}</td>
+                    <td><em>{{ $item->dosen?->name ?? 'Menunggu penugasan' }}</em></td>
+                    <td><x-status-badge :pengajuan="$item" /></td>
+                    <td>
+                        <div class="aksi-buttons">
+                            <a href="{{ route('mahasiswa.pengajuan.detail', $item) }}" class="btn-track">Detail</a>
+                            <a href="{{ route('mahasiswa.tracking', $item) }}" class="btn-track">Track</a>
+                        </div>
+                    </td>
                 </tr>
-                <tr>
-                    <td>REQ-2024-005</td>
-                    <td>Transkrip Nilai Sementara</td>
-                    <td>26 Mei 2024</td>
-                    <td><em>Prof. Dr. Anom Sutopo, M.Hum.</em></td>
-                    <td><span class="status-badge waiting">Waiting</span></td>
-                    <td><a href="/tracking" class="btn-track">🔎 Track</a></td>
-                </tr>
-                <tr>
-                    <td>REQ-2024-009</td>
-                    <td>Pengajuan Cuti Akademik</td>
-                    <td>28 Mei 2024</td>
-                    <td><em>Drs. Sujiwo, M.Kom.</em></td>
-                    <td><span class="status-badge submitted">Submitted</span></td>
-                    <td><a href="/tracking" class="btn-track">🔎 Track</a></td>
-                </tr>
-                <tr>
-                    <td>REQ-2024-012</td>
-                    <td>Legalisir Ijazah Elektronik</td>
-                    <td>29 Mei 2024</td>
-                    <td><em>Staff BAA UMS</em></td>
-                    <td><span class="status-badge rejected">Rejected</span></td>
-                    <td><a href="/tracking" class="btn-track">🔎 Track</a></td>
-                </tr>
-                <tr>
-                    <td>REQ-2024-015</td>
-                    <td>Surat Pengantar Magang</td>
-                    <td>30 Mei 2024</td>
-                    <td><em>Maryono, Ph.D.</em></td>
-                    <td><span class="status-badge submitted">Submitted</span></td>
-                    <td><a href="/tracking" class="btn-track">🔎 Track</a></td>
-                </tr>
+                @empty
+                <tr><td colspan="6" style="text-align:center;padding:24px;">Belum ada pengajuan.</td></tr>
+                @endforelse
             </tbody>
         </table>
     </section>
-
 </div>
-
-<footer class="dashboard-footer">© 2026 Universitas Muhammadiyah Surakarta. Smart Academic Service Tracking.</footer>
 @endsection

@@ -34,24 +34,26 @@ class TandaTanganController extends Controller
         $this->authorizeDosen($pengajuan);
 
         $request->validate([
-            'signature_data' => [
-                'required',
-                'string',
-                'regex:/^data:image\/png;base64,/',
-            ],
-            'catatan' => ['nullable', 'string', 'max:500'],
-        ], [
-            'signature_data.required' => 'Tanda tangan tidak boleh kosong.',
-            'signature_data.regex'    => 'Format data tanda tangan tidak valid.',
+            'signature_data' => ['nullable', 'string'],
+            'signature_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
+            'catatan'        => ['nullable', 'string', 'max:500'],
         ]);
 
-        // Decode base64 → bytes PNG
-        $base64  = preg_replace('/^data:image\/png;base64,/', '', $request->signature_data);
-        $decoded = base64_decode($base64);
+        $decoded = null;
+        $ext     = 'png';
 
-        // Kalau terlalu kecil berarti canvas masih kosong
+        if ($request->hasFile('signature_file')) {
+            $file    = $request->file('signature_file');
+            $decoded = file_get_contents($file->getRealPath());
+            $ext     = $file->getClientOriginalExtension();
+        } elseif ($request->filled('signature_data') && preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $request->signature_data)) {
+            $base64  = preg_replace('/^data:image\/(png|jpeg|jpg);base64,/', '', $request->signature_data);
+            $decoded = base64_decode($base64);
+            $ext     = 'png';
+        }
+
         if (!$decoded || strlen($decoded) < 500) {
-            return back()->with('error', 'Tanda tangan tidak boleh kosong. Silakan gambar tanda tangan Anda.');
+            return back()->with('error', 'Tanda tangan tidak boleh kosong. Unggah foto TTD atau gambar di canvas.');
         }
 
         DB::beginTransaction();
@@ -63,7 +65,7 @@ class TandaTanganController extends Controller
             }
 
             // Simpan PNG ke storage/app/private/ttd/{pengajuan_id}/
-            $namaFile = 'ttd_' . $pengajuan->id . '_' . time() . '.png';
+            $namaFile = 'ttd_' . $pengajuan->id . '_' . time() . '.' . $ext;
             $pathFile = 'ttd/' . $pengajuan->id . '/' . $namaFile;
             Storage::disk('local')->put($pathFile, $decoded);
 

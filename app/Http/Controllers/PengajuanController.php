@@ -8,83 +8,118 @@ use App\Models\LogPengajuan;
 use App\Models\Pengajuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PengajuanController extends Controller
 {
-    // ── Halaman pilih layanan ─────────────────────────────────
     public function index()
     {
         return view('mahasiswa.pengajuan');
     }
 
-    // ── Halaman upload dokumen ────────────────────────────────
-    public function showUpload()
-    {
-        return view('mahasiswa.upload');
-    }
-
-    // ── Halaman tracking ──────────────────────────────────────
-    public function tracking()
-    {
-        $user      = auth()->user();
-        $pengajuan = Pengajuan::byMahasiswa($user->id)
-            ->with(['dokumen', 'log.user', 'dosen'])
-            ->latest()
-            ->get();
-
-        return view('mahasiswa.tracking', compact('pengajuan'));
-    }
-
-    // ── Dashboard mahasiswa ───────────────────────────────────
     public function dashboard()
     {
         $user = auth()->user();
+        $base = Pengajuan::byMahasiswa($user->id);
 
         $stats = [
-            'total'     => Pengajuan::byMahasiswa($user->id)->count(),
-            'proses'    => Pengajuan::byMahasiswa($user->id)
-                            ->whereNotIn('status', ['selesai', 'ditolak'])->count(),
-            'selesai'   => Pengajuan::byMahasiswa($user->id)->byStatus('selesai')->count(),
-            'ditolak'   => Pengajuan::byMahasiswa($user->id)->byStatus('ditolak')->count(),
+            'submitted' => (clone $base)->byStatus('submitted')->count(),
+            'waiting'   => (clone $base)->whereIn('status', ['admin_verifikasi', 'dosen_ttd'])->count(),
+            'completed' => (clone $base)->byStatus('selesai')->count(),
+            'rejected'  => (clone $base)->byStatus('ditolak')->count(),
         ];
 
-        $riwayat = Pengajuan::byMahasiswa($user->id)->latest()->take(5)->get();
+        $riwayat = Pengajuan::byMahasiswa($user->id)
+            ->with('dosen')
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view('mahasiswa.dashboard', compact('stats', 'riwayat', 'user'));
     }
 
-    // ── TAMBAH PENGAJUAN ──────────────────────────────────────
+    public function riwayat(Request $request)
+    {
+        $user = auth()->user();
+        $query = Pengajuan::byMahasiswa($user->id)->with('dosen')->latest();
+
+        if ($request->filled('status')) {
+            $statuses = Pengajuan::backendStatusesForDisplay($request->status);
+            if ($statuses) {
+                $query->whereIn('status', $statuses);
+            }
+        }
+
+        if ($request->filled('jenis')) {
+            $query->where('jenis_layanan', $request->jenis);
+        }
+
+        if ($request->filled('cari')) {
+            $cari = $request->cari;
+            $query->where(function ($q) use ($cari) {
+                $q->where('kode', 'like', "%{$cari}%")
+                    ->orWhere('keperluan', 'like', "%{$cari}%")
+                    ->orWhere('jenis_layanan', 'like', "%{$cari}%");
+            });
+        }
+
+        $pengajuan = $query->get();
+        $base = Pengajuan::byMahasiswa($user->id);
+
+        $stats = [
+            'submitted' => (clone $base)->byStatus('submitted')->count(),
+            'waiting'   => (clone $base)->whereIn('status', ['admin_verifikasi', 'dosen_ttd'])->count(),
+            'completed' => (clone $base)->byStatus('selesai')->count(),
+            'rejected'  => (clone $base)->byStatus('ditolak')->count(),
+        ];
+
+        return view('mahasiswa.riwayat', compact('pengajuan', 'stats', 'user'));
+    }
+
+    public function tracking(Pengajuan $pengajuan)
+    {
+        $user = auth()->user();
+
+        if ($pengajuan->mahasiswa_id !== $user->id) {
+            abort(403);
+        }
+
+        $pengajuan->load(['dokumen', 'log.user', 'dosen']);
+
+        return view('mahasiswa.tracking', compact('pengajuan'));
+    }
+
     public function store(StorePengajuanRequest $request)
     {
         $user = auth()->user();
 
+        if (empty($request->jenis_layanan) || empty($request->keperluan)) {
+            return back()->with('error', 'Jenis layanan dan keperluan wajib diisi.');
+        }
+
         DB::beginTransaction();
         try {
-            // 1. Buat record pengajuan
             $pengajuan = Pengajuan::create([
-                'kode'             => Pengajuan::generateKode(),
-                'mahasiswa_id'     => $user->id,
-                'jenis_layanan'    => $request->jenis_layanan,
-                'nama_mahasiswa'   => $user->name,
-                'nim_mahasiswa'    => $user->nim,
-                'prodi_mahasiswa'  => $user->prodi,
-                'semester_mahasiswa' => $user->semester,
-                'keperluan'        => $request->keperluan,
-                'status'           => 'submitted',
-                'tanggal_submit'   => now(),
+                'kode'               => Pengajuan::generateKode(),
+                'mahasiswa_id'       => $user->id,
+                'jenis_layanan'      => $request->jenis_layanan,
+                'nama_mahasiswa'     => $user->name ?? 'Mahasiswa',
+                'nim_mahasiswa'      => $user->nim ?? '-',
+                'prodi_mahasiswa'    => $user->prodi ?? '-',
+                'semester_mahasiswa' => $user->semester ?? 1,
+                'keperluan'          => $request->keperluan,
+                'status'             => 'submitted',
+                'tanggal_submit'     => now(),
             ]);
 
-            // 2. Simpan dokumen wajib
             $this->simpanDokumen($pengajuan, $request, 'file_ktm', 'KTM', 'ktm');
             $this->simpanDokumen($pengajuan, $request, 'file_surat', 'Surat Permohonan', 'surat_permohonan');
 
-            // 3. Simpan dokumen opsional
             if ($request->hasFile('file_tambahan')) {
                 $this->simpanDokumen($pengajuan, $request, 'file_tambahan', 'Dokumen Tambahan', 'lainnya');
             }
 
-            // 4. Tulis log pertama
             LogPengajuan::create([
                 'pengajuan_id' => $pengajuan->id,
                 'user_id'      => $user->id,
@@ -96,31 +131,33 @@ class PengajuanController extends Controller
 
             DB::commit();
 
-            return redirect()->route('mahasiswa.tracking')
+            return redirect()->route('mahasiswa.riwayat')
                 ->with('success', "Pengajuan berhasil dikirim! Kode: {$pengajuan->kode}");
-
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal mengirim pengajuan: ' . $e->getMessage());
+            Log::error('Gagal simpan pengajuan', [
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+            ]);
+            return back()
+                ->withInput()
+                ->with('error', 'Gagal mengirim pengajuan: ' . $e->getMessage());
         }
     }
 
-    // ── AMBIL DETAIL PENGAJUAN ────────────────────────────────
     public function show(Pengajuan $pengajuan)
     {
         $user = auth()->user();
 
-        // Mahasiswa hanya boleh lihat miliknya sendiri
         if ($user->isMahasiswa() && $pengajuan->mahasiswa_id !== $user->id) {
             abort(403);
         }
 
-        $pengajuan->load(['dokumen', 'log.user', 'dosen', 'mahasiswa']);
+        $pengajuan->load(['dokumen', 'log.user', 'dosen', 'mahasiswa', 'tandaTangan']);
 
-        return view('mahasiswa.detail', compact('pengajuan'));
+        return view('mahasiswa.detail-pengajuan', compact('pengajuan'));
     }
 
-    // ── Helper simpan file ────────────────────────────────────
     private function simpanDokumen(
         Pengajuan $pengajuan,
         Request $request,
@@ -128,7 +165,9 @@ class PengajuanController extends Controller
         string $namaDokumen,
         string $tipeDokumen
     ): void {
-        if (!$request->hasFile($inputName)) return;
+        if (!$request->hasFile($inputName)) {
+            return;
+        }
 
         $file     = $request->file($inputName);
         $filename = time() . '_' . $tipeDokumen . '_' . $pengajuan->id . '.' . $file->getClientOriginalExtension();

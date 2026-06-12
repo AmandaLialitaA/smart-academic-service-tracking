@@ -12,12 +12,30 @@
 
 @section('content')
 <div class="pengajuan-wrap">
+    @if(session('error'))
+        <div style="background:#fff6f6;border:2px solid #E53935;padding:14px 18px;margin-bottom:16px;color:#a00;font-weight:600;">
+            {{ session('error') }}
+        </div>
+    @endif
+    @if($errors->any())
+        <div style="background:#fff6f6;border:2px solid #E53935;padding:14px 18px;margin-bottom:16px;color:#a00;">
+            <strong>Form belum valid:</strong>
+            <ul style="margin:8px 0 0 18px;">
+                @foreach($errors->all() as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-    {{-- Page Title --}}
-    <div class="form-page-title">
-        <h1>Form Pengajuan</h1>
-        <p>Layanan Akademik Mahasiswa UMS</p>
-    </div>
+    <form id="pengajuan-form" method="POST" action="{{ route('mahasiswa.pengajuan.store') }}" enctype="multipart/form-data">
+        @csrf
+
+        {{-- Page Title --}}
+        <div class="form-page-title">
+            <h1>Form Pengajuan</h1>
+            <p>Layanan Akademik Mahasiswa UMS</p>
+        </div>
 
     {{-- ===== SECTION 01 ===== --}}
     <div class="form-section">
@@ -30,14 +48,12 @@
                 <div class="form-group">
                     <label>Pilih Jenis Layanan</label>
                     <div class="select-wrap">
-                        <select name="jenis_layanan" id="jenis_layanan">
-                            <option value="" disabled selected>-- Pilih Layanan --</option>
-                            <option value="aktif-kuliah">Surat Keterangan Aktif Kuliah</option>
-                            <option value="transkrip">Transkrip Nilai Sementara</option>
-                            <option value="cuti">Pengajuan Cuti Akademik</option>
-                            <option value="legalisir">Legalisir Ijazah Elektronik</option>
-                            <option value="magang">Surat Pengantar Magang</option>
-                            <option value="lainnya">Lainnya</option>
+                        <select name="jenis_layanan" id="jenis_layanan" required>
+                            <option value="" disabled {{ old('jenis_layanan') ? '' : 'selected' }}>-- Pilih Layanan --</option>
+                            <option value="cuti" {{ old('jenis_layanan') === 'cuti' ? 'selected' : '' }}>Pengajuan Cuti Akademik</option>
+                            <option value="legalisir" {{ old('jenis_layanan') === 'legalisir' ? 'selected' : '' }}>Legalisir Ijazah Elektronik</option>
+                            <option value="magang" {{ old('jenis_layanan') === 'magang' ? 'selected' : '' }}>Surat Pengantar Magang</option>
+                            <option value="lainnya" {{ old('jenis_layanan') === 'lainnya' ? 'selected' : '' }}>Lainnya</option>
                         </select>
                         <span class="select-arrow">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
@@ -47,10 +63,16 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         Pastikan data profil Anda sudah benar di Dashboard.
                     </span>
+                    @error('jenis_layanan')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div class="form-group">
-                    <label>Judul Pengajuan</label>
-                    <input type="text" name="judul" id="judul" placeholder="Contoh: Pengajuan SKA untuk Beasiswa">
+                    <label>Keperluan Pengajuan</label>
+                    <input type="text" name="keperluan" id="keperluan" value="{{ old('keperluan') }}" placeholder="Contoh: Pengajuan Legalisir untuk Beasiswa" required>
+                    @error('keperluan')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
         </div>
@@ -63,36 +85,34 @@
             <h2>Unggah Dokumen Pendukung</h2>
         </div>
         <div class="form-section-body">
-
-            {{-- File preview --}}
-            <div class="file-preview" id="file-preview">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9B1FCA" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                <span class="file-preview-name" id="file-name-text"></span>
-                <button type="button" class="file-remove" onclick="removeFile()">&#10005; Hapus</button>
-            </div>
-
-            {{-- Dropzone --}}
-            <div class="upload-dropzone" id="dropzone">
-                <input type="file" name="dokumen" id="dokumen-input" accept=".pdf,.doc,.docx" onchange="handleFile(this)">
-                <div class="upload-icon-box">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#9B1FCA" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="12"/><line x1="15" y1="15" x2="12" y2="12"/></svg>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>KTM / Kartu Mahasiswa</label>
+                    <input type="file" name="file_ktm" id="file_ktm" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <span class="form-hint">Wajib diunggah. Maks. 10MB. Format PDF, JPG, atau PNG.</span>
+                    @error('file_ktm')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
                 </div>
-                <div class="upload-title">Tarik &amp; Lepas File ke Sini</div>
-                <div class="upload-sub">Atau klik untuk memilih dari komputer Anda</div>
-                <div class="upload-tags">
-                    <span class="upload-tag">PDF</span>
-                    <span class="upload-tag">DOCX</span>
-                    <span class="upload-tag">MAX 5MB</span>
+                <div class="form-group">
+                    <label>Surat Permohonan</label>
+                    <input type="file" name="file_surat" id="file_surat" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <span class="form-hint">Wajib diunggah. Maks. 10MB. Format PDF, JPG, atau PNG.</span>
+                    @error('file_surat')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
-
-            {{-- Warning --}}
-            <div class="warning-box">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <div>
-                    <div class="warning-title">Peringatan Penting</div>
-                    <p>Pastikan dokumen sudah ditandatangani dan di-scan dengan jelas. Dokumen yang tidak terbaca akan ditolak otomatis oleh sistem.</p>
-                </div>
+            <div class="form-group">
+                <label>Dokumen Tambahan (Opsional)</label>
+                <input type="file" name="file_tambahan" id="file_tambahan" accept=".pdf,.jpg,.jpeg,.png">
+                <span class="form-hint">Opsional. Maks. 5MB. PDF, JPG, atau PNG.</span>
+                @error('file_tambahan')
+                    <p class="form-error">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="file-guidelines">
+                <p><strong>Catatan:</strong> Hanya terima file PDF, JPG, atau PNG. Ukuran maksimal 10MB setiap file untuk lampiran tambahan.</p>
             </div>
         </div>
     </div>
@@ -106,7 +126,10 @@
         <div class="form-section-body">
             <div class="form-group">
                 <label>Informasi Tambahan (Opsional)</label>
-                <textarea name="catatan" placeholder="Tuliskan keterangan tambahan jika ada (misal: keperluan mendesak, detail alamat pengiriman, dll)..."></textarea>
+                <textarea name="catatan" placeholder="Tuliskan keterangan tambahan jika ada (misal: keperluan mendesak, detail alamat pengiriman, dll)...">{{ old('catatan') }}</textarea>
+                @error('catatan')
+                    <p class="form-error">{{ $message }}</p>
+                @enderror
             </div>
         </div>
     </div>
@@ -114,7 +137,7 @@
     {{-- ===== ACTIONS ===== --}}
     <div class="form-actions">
         <a href="/dashboard" class="btn-batal">Batal</a>
-        <button type="button" class="btn-kirim" onclick="submitForm()">
+        <button type="submit" class="btn-kirim">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             Kirim Pengajuan Sekarang
         </button>
@@ -128,11 +151,20 @@
             </div>
             <div>
                 <span class="fi-label">Format File</span>
-                <span class="fi-val">PDF, DOC, DOCX</span>
+                <span class="fi-val">PDF, JPG, PNG</span>
             </div>
         </div>
         <div class="footer-info-item">
             <div class="footer-icon-box fi-teal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+            <div>
+                <span class="fi-label">Ukuran Maksimal</span>
+                <span class="fi-val">10MB per File</span>
+            </div>
+        </div>
+        <div class="footer-info-item">
+            <div class="footer-icon-box fi-purple">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
             <div>
@@ -142,46 +174,6 @@
         </div>
     </div>
 
+    </form>
 </div>
-
-<script>
-const dropzone = document.getElementById('dropzone');
-
-dropzone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropzone.classList.add('drag-over');
-});
-dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
-dropzone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) showFilePreview(file);
-});
-
-function handleFile(input) {
-    if (input.files[0]) showFilePreview(input.files[0]);
-}
-
-function showFilePreview(file) {
-    if (file.size > 5 * 1024 * 1024) { alert('Ukuran file maksimal 5MB!'); return; }
-    document.getElementById('file-name-text').textContent = file.name;
-    document.getElementById('file-preview').style.display = 'flex';
-    dropzone.style.display = 'none';
-}
-
-function removeFile() {
-    document.getElementById('dokumen-input').value = '';
-    document.getElementById('file-preview').style.display = 'none';
-    dropzone.style.display = 'block';
-}
-
-function submitForm() {
-    const layanan = document.getElementById('jenis_layanan').value;
-    const judul   = document.getElementById('judul').value.trim();
-    if (!layanan) { alert('Silakan pilih jenis layanan terlebih dahulu.'); return; }
-    if (!judul)   { alert('Silakan isi judul pengajuan.'); return; }
-    alert('Pengajuan berhasil dikirim! (demo)');
-}
-</script>
 @endsection

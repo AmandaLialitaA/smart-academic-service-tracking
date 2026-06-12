@@ -12,10 +12,6 @@
             <span class="nav-icon"><i data-lucide="clipboard-list"></i></span>
             Semua Pengajuan
         </a>
-        <a href="/admin/analytics" class="{{ request()->is('admin/analytics*') ? 'active' : '' }}">
-            <span class="nav-icon"><i data-lucide="bar-chart-2"></i></span>
-            Analytics
-        </a>
     </nav>
     <div class="sidebar-footer">
         <a href="/admin/settings">

@@ -11,60 +11,103 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    // ── Dashboard admin ───────────────────────────────────────
     public function dashboard()
     {
         $stats = [
-            'total_mahasiswa' => User::where('role', 'mahasiswa')->count(),
-            'total_dosen'     => User::where('role', 'dosen')->count(),
-            'submitted'       => Pengajuan::byStatus('submitted')->count(),
+            'total'          => Pengajuan::count(),
+            'belum_selesai'  => Pengajuan::whereNotIn('status', ['selesai', 'ditolak'])->count(),
+            'submitted'      => Pengajuan::byStatus('submitted')->count(),
             'admin_verifikasi'=> Pengajuan::byStatus('admin_verifikasi')->count(),
-            'dosen_ttd'       => Pengajuan::byStatus('dosen_ttd')->count(),
-            'selesai'         => Pengajuan::byStatus('selesai')->count(),
-            'ditolak'         => Pengajuan::byStatus('ditolak')->count(),
-            'bulan_ini'       => Pengajuan::whereMonth('created_at', now()->month)->count(),
+            'dosen_ttd'      => Pengajuan::byStatus('dosen_ttd')->count(),
+            'selesai'        => Pengajuan::byStatus('selesai')->count(),
+            'ditolak'        => Pengajuan::byStatus('ditolak')->count(),
+            'hari_ini'       => Pengajuan::whereDate('created_at', today())->count(),
         ];
 
         $pengajuanTerbaru = Pengajuan::with('mahasiswa')
-            ->whereNotIn('status', ['selesai', 'ditolak'])
-            ->latest()->take(10)->get();
+            ->latest()
+            ->take(5)
+            ->get();
 
-        $daftarDosen = User::where('role', 'dosen')->get();
-
-        return view('admin.dashboard', compact('stats', 'pengajuanTerbaru', 'daftarDosen'));
+        return view('admin.dashboard', compact('stats', 'pengajuanTerbaru'));
     }
 
-    // ── Daftar semua pengajuan ────────────────────────────────
-    public function listPengajuan(Request $request)
+    public function verifikasiList(Request $request)
+    {
+        $query = Pengajuan::with('mahasiswa')
+            ->whereIn('status', ['submitted', 'admin_verifikasi']);
+
+        if ($request->filled('status')) {
+            $statuses = Pengajuan::backendStatusesForDisplay($request->status);
+            if ($statuses) {
+                $query->whereIn('status', $statuses);
+            }
+        }
+
+        if ($request->filled('jenis')) {
+            $query->where('jenis_layanan', $request->jenis);
+        }
+
+        if ($request->filled('cari')) {
+            $cari = $request->cari;
+            $query->where(function ($q) use ($cari) {
+                $q->where('kode', 'like', "%{$cari}%")
+                    ->orWhere('nim_mahasiswa', 'like', "%{$cari}%")
+                    ->orWhere('nama_mahasiswa', 'like', "%{$cari}%");
+            });
+        }
+
+        $pengajuan = $query->latest()->paginate(15)->withQueryString();
+
+        $stats = [
+            'total'   => Pengajuan::whereIn('status', ['submitted', 'admin_verifikasi'])->count(),
+            'submitted' => Pengajuan::byStatus('submitted')->count(),
+            'waiting' => Pengajuan::byStatus('admin_verifikasi')->count(),
+        ];
+
+        return view('admin.verifikasi-list', compact('pengajuan', 'stats'));
+    }
+
+    public function semuaPengajuan(Request $request)
     {
         $query = Pengajuan::with(['mahasiswa', 'dosen']);
 
         if ($request->filled('status')) {
-            $query->byStatus($request->status);
+            $statuses = Pengajuan::backendStatusesForDisplay($request->status);
+            if ($statuses) {
+                $query->whereIn('status', $statuses);
+            }
         }
+
         if ($request->filled('jenis')) {
             $query->where('jenis_layanan', $request->jenis);
         }
+
         if ($request->filled('cari')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('kode', 'like', "%{$request->cari}%")
-                  ->orWhere('nim_mahasiswa', 'like', "%{$request->cari}%")
-                  ->orWhere('nama_mahasiswa', 'like', "%{$request->cari}%");
+            $cari = $request->cari;
+            $query->where(function ($q) use ($cari) {
+                $q->where('kode', 'like', "%{$cari}%")
+                    ->orWhere('nim_mahasiswa', 'like', "%{$cari}%")
+                    ->orWhere('nama_mahasiswa', 'like', "%{$cari}%");
             });
         }
 
-        $pengajuan = $query->latest()->paginate(20);
+        $pengajuan = $query->latest()->paginate(20)->withQueryString();
 
-        return view('admin.list-pengajuan', compact('pengajuan'));
+        $stats = [
+            'total'     => Pengajuan::count(),
+            'submitted' => Pengajuan::byStatus('submitted')->count(),
+            'waiting'   => Pengajuan::whereIn('status', ['admin_verifikasi', 'dosen_ttd'])->count(),
+            'completed' => Pengajuan::byStatus('selesai')->count(),
+        ];
+
+        return view('admin.semua-pengajuan', compact('pengajuan', 'stats'));
     }
 
-    // ── UPDATE STATUS: Admin verifikasi ───────────────────────
-    public function verifikasi(UpdateStatusRequest $request, Pengajuan $pengajuan)
+    public function approveSubmitted(Request $request, Pengajuan $pengajuan)
     {
-        // Admin hanya boleh set ke admin_verifikasi atau ditolak dari submitted
-        if (!in_array($request->status, ['admin_verifikasi', 'ditolak'])) {
-            return back()->with('error', 'Admin hanya bisa memverifikasi atau menolak pengajuan.');
-        }
+        $request->validate(['catatan' => ['nullable', 'string', 'max:500']]);
+        $request->merge(['status' => 'admin_verifikasi']);
 
         return $this->prosesUpdateStatus($request, $pengajuan, 'admin', [
             'admin_verifikasi_id' => auth()->id(),
@@ -73,7 +116,20 @@ class AdminController extends Controller
         ]);
     }
 
-    // ── UPDATE STATUS: Teruskan ke dosen ─────────────────────
+    public function rejectPengajuan(Request $request, Pengajuan $pengajuan)
+    {
+        $request->validate([
+            'catatan' => ['required', 'string', 'min:5', 'max:500'],
+        ]);
+
+        $request->merge(['status' => 'ditolak']);
+
+        return $this->prosesUpdateStatus($request, $pengajuan, 'admin', [
+            'admin_verifikasi_id' => auth()->id(),
+            'catatan_admin'       => $request->catatan,
+        ]);
+    }
+
     public function teruskeDosen(Request $request, Pengajuan $pengajuan)
     {
         $request->validate([
@@ -116,7 +172,6 @@ class AdminController extends Controller
         }
     }
 
-    // ── UPDATE STATUS: Checklist selesai ─────────────────────
     public function checklist(Request $request, Pengajuan $pengajuan)
     {
         $request->validate([
@@ -140,7 +195,6 @@ class AdminController extends Controller
         );
     }
 
-    // ── Helper proses update status ───────────────────────────
     private function prosesUpdateStatus(
         Request $request,
         Pengajuan $pengajuan,
@@ -149,8 +203,8 @@ class AdminController extends Controller
         ?string $forceStatus = null,
         ?string $forceCatatan = null
     ) {
-        $statusBaru   = $forceStatus  ?? $request->status;
-        $catatan      = $forceCatatan ?? $request->catatan;
+        $statusBaru  = $forceStatus ?? $request->status;
+        $catatan     = $forceCatatan ?? $request->catatan;
 
         if (!$pengajuan->bisaTransisiKe($statusBaru)) {
             return back()->with('error',
@@ -161,10 +215,8 @@ class AdminController extends Controller
         DB::beginTransaction();
         try {
             $statusLama = $pengajuan->status;
-
             $updateData = array_merge(['status' => $statusBaru], $extraData);
 
-            // Set timestamp penolakan jika ditolak
             if ($statusBaru === 'ditolak') {
                 $updateData['tanggal_ditolak']   = now();
                 $updateData['catatan_penolakan'] = $catatan;
@@ -185,18 +237,17 @@ class AdminController extends Controller
 
             $label = Pengajuan::STATUS_LABEL[$statusBaru] ?? $statusBaru;
             return back()->with('success', "Status diubah menjadi: {$label}");
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal update status: ' . $e->getMessage());
         }
     }
 
-    // ── Detail pengajuan ──────────────────────────────────────
     public function show(Pengajuan $pengajuan)
     {
-        $pengajuan->load(['mahasiswa', 'dosen', 'dokumen', 'log.user']);
+        $pengajuan->load(['mahasiswa', 'dosen', 'dokumen', 'log.user', 'tandaTangan']);
         $daftarDosen = User::where('role', 'dosen')->get();
-        return view('admin.detail-pengajuan', compact('pengajuan', 'daftarDosen'));
+
+        return view('admin.verifikasi', compact('pengajuan', 'daftarDosen'));
     }
 }

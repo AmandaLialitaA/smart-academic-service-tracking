@@ -17,18 +17,13 @@ return new class extends Migration
             $table->foreignId('admin_verifikasi_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('admin_selesai_id')->nullable()->constrained('users')->nullOnDelete();
 
-            $table->enum('jenis_layanan', [
-                'aktif-kuliah',
-                'transkrip',
-                'cuti',
-                'legalisir',
-            ]);
+            $table->string('jenis_layanan', 50)->default('cuti');
 
             // Snapshot data mahasiswa saat pengajuan
             $table->string('nama_mahasiswa');
-            $table->string('nim_mahasiswa');
-            $table->string('prodi_mahasiswa');
-            $table->integer('semester_mahasiswa');
+            $table->string('nim_mahasiswa')->nullable();
+            $table->string('prodi_mahasiswa')->nullable();
+            $table->unsignedTinyInteger('semester_mahasiswa')->nullable();
             $table->text('keperluan');
 
             // Workflow status

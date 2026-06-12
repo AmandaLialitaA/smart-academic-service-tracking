@@ -47,7 +47,7 @@
                 <span class="input-icon">👤</span>
                 <input type="email" id="email" name="email" placeholder="mahasiswa@ac.id" value="{{ old('email') }}" required>
             </div>
-            <label for="password" class="form-label">PASSWORD <a href="#" class="forgot">LUPA PASSWORD?</a></label>
+            <label for="password" class="form-label">PASSWORD <a href="{{ route('password.request') }}?role=mahasiswa" class="forgot">LUPA PASSWORD?</a></label>
             <div class="input-group" style="position:relative;">
                 <span class="input-icon">🔒</span>
                 <input type="password" id="password" name="password" placeholder="********" required>
@@ -59,7 +59,7 @@
         </form>
 
         <div class="divider"></div>
-        <div class="no-account">Belum punya akun? <button class="btn-contact">HUBUNGI ADMIN IT</button></div>
+        <div class="no-account">Belum punya akun? <a href="{{ route('register', ['role' => 'mahasiswa']) }}" class="btn-contact" style="text-decoration:none;display:inline-block;">DAFTAR SEKARANG</a></div>
         <footer class="login-footer">© 2026 Universitas Muhammadiyah Surakarta. Smart Academic Service Tracking.</footer>
 
         <script>
