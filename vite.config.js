@@ -7,14 +7,16 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
-                'resources/css/dashboard-mahasiswa.css',
-                'resources/css/dashboard-dosen.css',
-                'resources/css/dashboard-admin.css',
                 'resources/css/pengajuan.css',
                 'resources/css/tracking.css',
                 'resources/css/upload.css',
-                'resources/css/detail-pengajuan-dosen.css',
-                'resources/css/verifikasi-admin.css',  // ← tambahkan ini
+                'resources/css/landing.css',
+                'resources/css/login.css',
+                'resources/css/dashboard-mahasiswa.css',
+                'resources/css/dashboard-admin.css',
+                'resources/css/dashboard-dosen.css',
+                'resources/css/detail-mahasiswa.css',
+                'resources/css/settings-mahasiswa.css',
                 'resources/js/app.js',
             ],
             refresh: true,

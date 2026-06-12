@@ -120,6 +120,59 @@ class PengajuanController extends Controller
         return view('mahasiswa.detail', compact('pengajuan'));
     }
 
+    // ── LIHAT / UNDUH FILE DOKUMEN ────────────────────────────
+    public function dokumen(DokumenPengajuan $dokumen)
+    {
+        $user      = auth()->user();
+        $pengajuan = $dokumen->pengajuan;
+
+        $boleh = $user->isAdmin()
+            || $user->isDosen()
+            || ($user->isMahasiswa() && $pengajuan->mahasiswa_id === $user->id);
+
+        abort_if(!$boleh, 403);
+
+        if (!Storage::disk('local')->exists($dokumen->path_file)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        return response(
+            Storage::disk('local')->get($dokumen->path_file),
+            200,
+            [
+                'Content-Type'        => $dokumen->mime_type,
+                'Content-Disposition' => 'inline; filename="' . $dokumen->nama_file_asli . '"',
+            ]
+        );
+    }
+
+    // ── HALAMAN SETTINGS ───────────────────────────────────────
+    public function settings()
+    {
+        return view('mahasiswa.settings');
+    }
+
+    // ── UPDATE PASSWORD ────────────────────────────────────────
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password'         => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'current_password.required' => 'Password saat ini wajib diisi.',
+            'current_password.current_password' => 'Password saat ini tidak sesuai.',
+            'password.required'  => 'Password baru wajib diisi.',
+            'password.min'       => 'Password baru minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+        ]);
+
+        auth()->user()->update([
+            'password' => bcrypt($request->password),
+        ]);
+
+        return back()->with('success', 'Password berhasil diubah.');
+    }
+
     // ── Helper simpan file ────────────────────────────────────
     private function simpanDokumen(
         Pengajuan $pengajuan,

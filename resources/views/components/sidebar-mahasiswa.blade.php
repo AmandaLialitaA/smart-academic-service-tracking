@@ -1,30 +1,50 @@
-<aside class="sidebar sidebar-mahasiswa">
-    <nav class="sidebar-nav">
-        <a href="/dashboard" class="{{ request()->is('dashboard') ? 'active' : '' }}">
-            <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>
-            Dashboard
-        </a>
-        <a href="/pengajuan" class="{{ request()->is('pengajuan*') ? 'active' : '' }}">
-            <span class="nav-icon"><i data-lucide="file-plus"></i></span>
-            Ajukan Layanan
-        </a>
-        <a href="/riwayat" class="{{ request()->is('riwayat') ? 'active' : '' }}">
-            <span class="nav-icon"><i data-lucide="clock"></i></span>
-            Riwayat Pengajuan
-        </a>
+<div id="sidebarMahasiswa" class="sidebar-mahasiswa">
+    <div class="sidebar-header">Smart Academic Service Tracking System UMS</div>
+    <nav class="sidebar-menu">
+        <ul>
+            <li class="{{ request()->is('dashboard') ? 'active' : '' }}">
+                <a href="/dashboard">
+                    <span class="sidebar-icon">&#128200;</span> Dashboard
+                </a>
+            </li>
+            <li class="{{ request()->is('pengajuan') ? 'active' : '' }}">
+                <a href="/pengajuan">
+                    <span class="sidebar-icon">&#10133;</span> Ajukan Layanan
+                </a>
+            </li>
+            <li class="{{ request()->is('tracking') ? 'active' : '' }}">
+                <a href="/tracking">
+                    <span class="sidebar-icon">&#128221;</span> Riwayat Pengajuan
+                </a>
+            </li>
+        </ul>
     </nav>
-    <div class="sidebar-footer">
-        <a href="/settings">
-            <span class="nav-icon"><i data-lucide="settings"></i></span>
-            Settings
-        </a>
-        <a href="/logout" style="color:#E53935;"
-           onclick="event.preventDefault(); document.getElementById('logout-form-mhs').submit();">
-            <span class="nav-icon"><i data-lucide="log-out" style="color:#E53935;"></i></span>
-            Logout
-        </a>
-        <form id="logout-form-mhs" action="/logout" method="POST" style="display:none;">
+    <div class="sidebar-bottom">
+        <a href="{{ route('mahasiswa.settings') }}" class="sidebar-settings {{ request()->routeIs('mahasiswa.settings*') ? 'active' : '' }}"><span class="sidebar-icon">&#9881;</span> Settings</a>
+        <form action="{{ route('logout') }}" method="post" style="margin:0;">
             @csrf
+            <button type="submit" class="sidebar-logout" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;font-size:1rem;font-family:inherit;"><span class="sidebar-icon">&#128682;</span> Logout</button>
         </form>
     </div>
-</aside>
+</div>
+<!-- Hamburger Button -->
+<button id="sidebarToggle" class="sidebar-hamburger" aria-label="Toggle Sidebar">
+    <span></span><span></span><span></span>
+</button>
+<script>
+    const sidebar = document.getElementById('sidebarMahasiswa');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    function closeSidebarOnOutsideClick(e) {
+        if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+        }
+    }
+    toggleBtn.onclick = function() {
+        sidebar.classList.toggle('open');
+        if (sidebar.classList.contains('open')) {
+            document.body.addEventListener('click', closeSidebarOnOutsideClick);
+        } else {
+            document.body.removeEventListener('click', closeSidebarOnOutsideClick);
+        }
+    };
+</script>

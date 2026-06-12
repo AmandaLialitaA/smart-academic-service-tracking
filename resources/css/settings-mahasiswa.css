@@ -1,0 +1,81 @@
+/* SETTINGS - MAHASISWA */
+.settings-main {
+    padding: 20px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+.settings-main > p {
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+    color: #333;
+}
+.settings-card {
+    background: #fff;
+    border: 3px solid #000;
+    box-shadow: 4px 4px 0px #000;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+.settings-card h2 {
+    font-size: 1.2rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.settings-card .desc {
+    color: #777;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+.settings-card .form-group {
+    margin-bottom: 18px;
+}
+.settings-card .form-group label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #222;
+}
+.settings-card .form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+.settings-card .form-group input:focus {
+    outline: none;
+    border-color: #a259e6;
+}
+.settings-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+.settings-info-row:last-child {
+    border-bottom: none;
+}
+.settings-info-row label {
+    font-weight: 700;
+    color: #888;
+}
+.settings-info-row .value {
+    font-weight: 600;
+    color: #222;
+}
+.settings-card .btn-primary {
+    background: #a259e6;
+    color: #fff;
+    border: 2px solid #a259e6;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-weight: 800;
+    font-size: 1.08rem;
+    cursor: pointer;
+}
+.settings-card .btn-primary:hover {
+    background: #8a3fd1;
+}
