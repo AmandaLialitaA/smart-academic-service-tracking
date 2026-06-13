@@ -53,7 +53,7 @@
         <div class="login-right">
             <div class="role-pill">Hubungi Admin IT</div>
             <h2 class="login-title">HUBUNGI ADMIN IT</h2>
-            <p class="login-subtitle">Belum punya akun? Hubungi tim Admin IT UMS untuk mendaftarkan akun Anda ke sistem.</p>
+            <p class="login-subtitle">Belum punya akun? Silakan mengunjungi ruang TU FKI UMS untuk mendaftarkan akun Anda ke sistem.</p>
 
             {{-- Kontak Cards --}}
             <div class="kontak-grid">
@@ -94,7 +94,7 @@
                     </div>
                     <div class="kontak-info">
                         <div class="kontak-label">LOKASI</div>
-                        <div class="kontak-val">Gedung Induk Lt. 1</div>
+                        <div class="kontak-val">Gedung J, Kampus 2</div>
                         <div class="kontak-sub">Universitas Muhammadiyah Surakarta</div>
                     </div>
                 </div>
@@ -121,14 +121,14 @@
                     <line x1="12" y1="8" x2="12" y2="12"/>
                     <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
-                <span>Siapkan KTM/KTP dan surat keterangan dari fakultas saat menghubungi Admin IT untuk proses pendaftaran akun.</span>
+                <span>Siapkan KTM/KTP dan surat keterangan dari fakultas saat mengunjungi Admin IT untuk proses pendaftaran akun.</span>
             </div>
 
             <hr class="login-divider">
 
             <div class="login-footer-alt">
                 <span>Sudah punya akun?</span>
-                <a href="/login" class="alt-btn-contact">KEMBALI KE LOGIN</a>
+                <a href="/login" class="alt-btn-contact">KEMBALI</a>
             </div>
         </div>
     </div>
@@ -146,12 +146,7 @@ const roleInfo = {
     mahasiswa: {
         pill: 'Portal Mahasiswa',
         subtitle: 'Belum punya akun mahasiswa? Hubungi tim Admin IT UMS untuk mendaftarkan akun Anda.',
-        info: 'Siapkan KTM dan surat keterangan dari fakultas saat menghubungi Admin IT.'
-    },
-    dosen: {
-        pill: 'Portal Dosen',
-        subtitle: 'Belum punya akun dosen? Hubungi tim Admin IT UMS untuk mendaftarkan akun mengajar Anda.',
-        info: 'Siapkan NIDN, SK Mengajar, dan kartu identitas saat menghubungi Admin IT.'
+        info: 'Siapkan KTM dan surat keterangan dari fakultas saat mengunjungi Admin IT.'
     }
 };
 

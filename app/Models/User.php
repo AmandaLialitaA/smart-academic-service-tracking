@@ -13,7 +13,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'role', 'nim', 'prodi', 'semester',
+        'name', 'email', 'password', 'role', 'nim', 'prodi', 'semester', 'avatar',
     ];
 
     protected $hidden = [
@@ -49,7 +49,7 @@ class User extends Authenticatable
         return match ($this->role) {
             'mahasiswa' => 'Mahasiswa UMS',
             'dosen'     => 'Dosen UMS',
-            'admin'     => 'Admin BAA UMS',
+            'admin'     => 'Admin TU FKI UMS',
             default     => 'UMS Academic',
         };
     }

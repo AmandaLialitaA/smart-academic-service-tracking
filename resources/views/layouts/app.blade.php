@@ -41,7 +41,7 @@
                 <span class="topbar-user-name" id="topbar-user-name">{{ $topbarName }}</span>
                 <span class="topbar-user-role" id="topbar-user-role">{{ $topbarRole }}</span>
             </div>
-            <img src="https://i.pravatar.cc/36?u={{ $authUser?->id ?? 'guest' }}" class="topbar-avatar" alt="avatar">
+            <img src="{{ $authUser?->avatar ? asset('storage/'.$authUser->avatar) : 'https://i.pravatar.cc/36?u='.($authUser?->id ?? 'guest') }}" class="topbar-avatar" alt="avatar">
         </div>
     </div>
 

@@ -45,7 +45,7 @@
                 </span>
                 <input type="email" id="email" name="email" placeholder="dosen@ac.id" value="{{ old('email') }}" required>
             </div>
-            <label for="password" class="form-label">KATA SANDI <a href="{{ route('password.request') }}?role=dosen" class="forgot">Lupa Password?</a></label>
+            <label for="password" class="form-label">KATA SANDI</label>
             <div class="input-group" style="position:relative;">
                 <span class="input-icon">
                     <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm6-7V8a6 6 0 1 0-12 0v2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2Zm-8-2a4 4 0 1 1 8 0v2H6V8Zm10 10H6v-6h12v6Z" fill="#222"/></svg>
@@ -59,7 +59,6 @@
         </form>
 
         <div class="divider"></div>
-        <div class="no-account">Belum punya akun? <a href="{{ route('register', ['role' => 'dosen']) }}" class="btn-contact" style="text-decoration:none;">DAFTAR DOSEN</a></div>
         <footer class="login-footer">© 2026 Universitas Muhammadiyah Surakarta. Smart Academic Service Tracking.</footer>
 
         <script>

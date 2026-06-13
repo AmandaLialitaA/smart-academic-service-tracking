@@ -116,8 +116,8 @@
         </div>
         <div class="tips-box tips-box--dark">
             <b>Butuh Bantuan?</b>
-            <p>Hubungi Biro Administrasi Akademik (BAA) jika pengajuan tertunda lebih dari 3 hari kerja.</p>
-            <div class="tips-location">Lokasi BAA <b>Gedung Siti Walidah Lt. 2</b></div>
+            <p>Hubungi Admin IT jika pengajuan tertunda lebih dari 3 hari kerja.</p>
+            <div class="tips-location">Lokasi TU FKI UMS <b>Gedung J, Kampus 2</b></div>
             <a href="{{ route('kontak.admin') }}" class="btn-contact btn-contact-dark">Kontak Admin</a>
         </div>
     </div>

@@ -118,11 +118,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="password">PASSWORD
-                        <a href="/lupa-password" class="forgot-link" id="forgot-link">
-                            LUPA PASSWORD?
-                        </a>
-                    </label>
                     <div class="input-icon-group">
                         <span class="input-icon">
                             <svg width="20" height="20" fill="none" viewBox="0 0 24 24"

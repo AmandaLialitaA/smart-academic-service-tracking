@@ -79,3 +79,4 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/kontak-admin', fn () => view('auth.kontak-admin'))->name('kontak.admin');
+Route::post('/settings/avatar', [SettingsController::class, 'updateAvatar'])->name('settings.avatar.update');
