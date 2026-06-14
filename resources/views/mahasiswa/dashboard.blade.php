@@ -1,11 +1,9 @@
+{{-- resources/views/mahasiswa/dashboard.blade.php --}}
 @extends('layouts.app')
-
 @section('title', 'Dashboard Mahasiswa')
-
 @section('head')
-    @vite(['resources/css/dashboard-mahasiswa.css'])
+    @vite(['resources/css/dashboard-mahasiswa.css', 'resources/js/realtime.js'])
 @endsection
-
 @section('sidebar')
     @include('components.sidebar-mahasiswa')
 @endsection
@@ -26,6 +24,7 @@
 @section('content')
 <div class="dashboard-main">
 
+    {{-- ===== STAT BADGES ===== --}}
     <div class="dashboard-badges">
         <div class="badge badge-submitted">
             <div>
@@ -65,6 +64,7 @@
         </div>
     </div>
 
+    {{-- ===== TABEL TERBARU ===== --}}
     <section class="latest-requests">
         <div class="section-header">
             <h2>Status Pengajuan Terbaru</h2>
@@ -77,7 +77,7 @@
                     <th>ID Pengajuan</th>
                     <th>Jenis Layanan</th>
                     <th>Tanggal Diajukan</th>
-                    <th>Dosen/Staff Penanggung Jawab</th>
+                    <th>Dosen/Staff PJ</th>
                     <th>Status</th>
                     <th>Aksi</th>
                 </tr>
@@ -85,13 +85,26 @@
             <tbody>
                 @forelse($riwayat as $item)
                 <tr>
-                    <td>{{ $item->kode }}</td>
+                    <td style="font-weight:700;font-size:12.5px;">{{ $item->kode }}</td>
                     <td>{{ $item->jenis_label }}</td>
-                    <td>{{ $item->tanggal_submit?->format('d M Y') ?? '-' }}</td>
-                    <td><em>{{ $item->dosen?->name ?? 'Menunggu penugasan' }}</em></td>
-                    <td><x-status-badge :pengajuan="$item" /></td>
                     <td>
-                        <div class="aksi-buttons">
+                        @if($item->tanggal_submit)
+                        <span class="live-dt-short"
+                              data-at="{{ $item->tanggal_submit->toIso8601String() }}"></span>
+                        <br>
+                        <span class="live-ago"
+                              data-at="{{ $item->tanggal_submit->toIso8601String() }}"
+                              style="font-size:11px;color:#888;"></span>
+                        @else
+                        -
+                        @endif
+                    </td>
+                    <td><em>{{ $item->dosen?->name ?? 'Menunggu penugasan' }}</em></td>
+                    <td>
+                        <x-status-badge :pengajuan="$item" />
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
                             <a href="{{ route('mahasiswa.pengajuan.detail', $item) }}" class="btn-track">Detail</a>
                             <a href="{{ route('mahasiswa.tracking', $item) }}" class="btn-track">Track</a>
                         </div>
@@ -99,13 +112,19 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" style="text-align:center;padding:24px;color:#888;">Belum ada pengajuan. <a href="{{ route('mahasiswa.pengajuan') }}">Ajukan layanan sekarang</a></td>
+                    <td colspan="6" style="text-align:center;padding:28px;color:#888;">
+                        Belum ada pengajuan.
+                        <a href="{{ route('mahasiswa.pengajuan') }}" style="color:#9B1FCA;font-weight:700;">
+                            Ajukan layanan sekarang
+                        </a>
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </section>
 
+    {{-- ===== BOTTOM CARDS ===== --}}
     <div class="dashboard-bottom-boxes">
         <div class="tips-box tips-box--purple">
             <b>💡 Tips Kecepatan Layanan</b>
@@ -117,10 +136,14 @@
         <div class="tips-box tips-box--dark">
             <b>Butuh Bantuan?</b>
             <p>Hubungi Admin IT jika pengajuan tertunda lebih dari 3 hari kerja.</p>
-            <div class="tips-location">Lokasi TU FKI UMS <b>Gedung J, Kampus 2</b></div>
+            <div class="tips-location">
+                Lokasi TU FKI UMS
+                <b>Gedung J, Kampus 2</b>
+            </div>
             <a href="{{ route('kontak.admin') }}" class="btn-contact btn-contact-dark">Kontak Admin</a>
         </div>
     </div>
+
 </div>
 
 <footer class="dashboard-footer">

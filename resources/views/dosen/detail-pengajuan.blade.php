@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Detail Pengajuan Dosen')
 @section('head')
-    @vite(['resources/css/detail-pengajuan-dosen.css'])
+    @vite(['resources/css/detail-pengajuan-dosen.css', 'resources/js/realtime.js'])
 @endsection
 @section('sidebar')
     @include('components.sidebar-dosen')
@@ -29,7 +29,11 @@
                 <strong>Catatan Mahasiswa:</strong> {{ $pengajuan->catatan_mahasiswa }}
             </p>
             @endif
-            <p style="margin-top:8px;">Tanggal: {{ $pengajuan->tanggal_submit?->format('d M Y, H:i') }}</p>
+            <p style="margin-top:8px;">
+                Tanggal:
+                <span class="live-dt-short"
+                    data-at="{{ $pengajuan->tanggal_submit?->toIso8601String() }}"></span>
+            </p>
             <p>Status: <x-status-badge :pengajuan="$pengajuan" /></p>
         </div>
     </div>
@@ -54,7 +58,7 @@
     <div style="margin-bottom:20px;border:2px solid #27AE60;padding:16px;background:#f0fff4;border-radius:6px;">
         <h3 style="color:#0a7a0a;">✅ Tanda Tangan Anda</h3>
         <p style="font-size:13px;color:#555;margin-bottom:10px;">
-            Ditandatangani pada {{ $pengajuan->tandaTangan->ditandatangani_pada?->format('d M Y, H:i') }}
+            Ditandatangani pada <span class="live-dt-short" data-at="{{ $pengajuan->tandaTangan->ditandatangani_pada?->toIso8601String() }}"></span>
         </p>
         <img src="{{ route('dosen.ttd.gambar', $pengajuan->tandaTangan) }}"
              alt="TTD"
@@ -134,7 +138,7 @@
     @elseif($pengajuan->tanggal_ttd && $pengajuan->status !== 'ditolak')
     <div style="padding:14px;background:#f0fff4;border:2px solid #27AE60;border-radius:6px;">
         <p style="color:#0a7a0a;font-weight:700;">
-            ✅ Anda sudah menandatangani pengajuan ini pada {{ $pengajuan->tanggal_ttd->format('d M Y, H:i') }}.
+            ✅ Anda sudah menandatangani pengajuan ini pada <span class="live-dt-short" data-at="{{ $pengajuan->tanggal_ttd->toIso8601String() }}"></span>.
         </p>
         <p style="font-size:13px;color:#555;margin-top:4px;">Menunggu checklist selesai dari Admin.</p>
     </div>

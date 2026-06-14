@@ -3,7 +3,7 @@
 @section('title', 'Detail Pengajuan')
 
 @section('head')
-    @vite(['resources/css/pengajuan.css', 'resources/css/tracking.css'])
+    @vite(['resources/css/pengajuan.css', 'resources/css/tracking.css', 'resources/js/realtime.js'])
     <style>
     .detail-wrap { font-family: 'Barlow', sans-serif; padding: 28px 36px 0; max-width: 900px; }
     .detail-back { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #555; text-decoration: none; margin-bottom: 10px; }
@@ -49,7 +49,15 @@
         <div class="detail-section-body">
             <div class="detail-grid-2">
                 <div><span class="detail-item-label">Jenis Layanan</span><span class="detail-item-value">{{ $pengajuan->jenis_label }}</span></div>
-                <div><span class="detail-item-label">Tanggal Diajukan</span><span class="detail-item-value">{{ $pengajuan->tanggal_submit?->format('d M Y, H:i') ?? '-' }}</span></div>
+                <div><span class="detail-item-label">Tanggal Diajukan</span><span class="detail-item-value">
+                    @if($pengajuan->tanggal_submit)
+                    <span class="live-dt-short" data-at="{{ $pengajuan->tanggal_submit->toIso8601String() }}"></span>
+                    <br>
+                    <span class="live-ago" data-at="{{ $pengajuan->tanggal_submit->toIso8601String() }}" style="font-size:11px;color:#888;"></span>
+                    @else
+                    -
+                    @endif
+                </span></div>
                 <div><span class="detail-item-label">Keperluan</span><span class="detail-item-value">{{ $pengajuan->keperluan }}</span></div>
                 <div><span class="detail-item-label">Dosen/Staf Penanggung Jawab</span><span class="detail-item-value">{{ $pengajuan->dosen?->name ?? 'Menunggu penugasan' }}</span></div>
                 <div><span class="detail-item-label">Program Studi</span><span class="detail-item-value">{{ $pengajuan->prodi_mahasiswa }}</span></div>

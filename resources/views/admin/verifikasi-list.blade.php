@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Antrian Verifikasi')
 @section('head')
-    @vite(['resources/css/dashboard-admin.css'])
+    @vite(['resources/css/dashboard-admin.css', 'resources/js/realtime.js'])
 @endsection
 @section('sidebar')
     @include('components.sidebar-admin')
@@ -42,7 +42,15 @@
                 <td style="padding:10px;">{{ $item->kode }}</td>
                 <td>{{ $item->nama_mahasiswa }}<br><small>{{ $item->nim_mahasiswa }}</small></td>
                 <td>{{ $item->jenis_label }}</td>
-                <td>{{ $item->tanggal_submit?->format('d M Y') }}</td>
+                <td>
+                    @if($item->tanggal_submit)
+                    <span class="live-dt-short" data-at="{{ $item->tanggal_submit->toIso8601String() }}"></span>
+                    <br>
+                    <span class="live-ago" data-at="{{ $item->tanggal_submit->toIso8601String() }}" style="font-size:11px;color:#888;"></span>
+                    @else
+                    -
+                    @endif
+                </td>
                 <td><x-status-badge :pengajuan="$item" /></td>
                 <td><a href="{{ route('admin.verifikasi.detail', $item) }}" class="da-btn-outline" style="padding:6px 10px;text-decoration:none;">Detail</a></td>
             </tr>

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Verifikasi Dokumen')
 @section('head')
-    @vite(['resources/css/dashboard-admin.css'])
+    @vite(['resources/css/verifikasi.css', 'resources/js/realtime.js'])
 @endsection
 @section('sidebar')
     @include('components.sidebar-admin')
@@ -18,7 +18,9 @@
             <p>Prodi: {{ $pengajuan->prodi_mahasiswa }}</p>
             <p>Jenis: {{ $pengajuan->jenis_label }}</p>
             <p>Keperluan: {{ $pengajuan->keperluan }}</p>
-            <p>Tanggal: {{ $pengajuan->tanggal_submit?->format('d M Y, H:i:s') }}</p>
+            Tanggal:
+            <span class="live-dt"
+                data-at="{{ $pengajuan->tanggal_submit?->toIso8601String() }}"></span>
             @if($pengajuan->catatan_mahasiswa)
             <p style="margin-top:8px;padding:8px;background:#f5f5f5;border-left:3px solid #a259e6;font-size:13px;">
                 <strong>Catatan Mahasiswa:</strong> {{ $pengajuan->catatan_mahasiswa }}
@@ -46,10 +48,10 @@
     @if($pengajuan->tandaTangan)
     <div style="margin-top:20px;border:2px solid #27AE60;padding:16px;background:#f0fff4;">
         <h3 style="color:#0a7a0a;">✅ Tanda Tangan Dosen</h3>
-        <p style="font-size:13px;color:#555;margin-bottom:10px;">
-            Ditandatangani oleh <strong>{{ $pengajuan->dosen?->name }}</strong>
-            pada {{ $pengajuan->tandaTangan->ditandatangani_pada?->format('d M Y, H:i') }}
-        </p>
+        Ditandatangani oleh <strong>{{ $pengajuan->dosen?->name }}</strong>
+        pada
+        <span class="live-dt-short"
+            data-at="{{ $pengajuan->tandaTangan->ditandatangani_pada?->toIso8601String() }}"></span>
         <img src="{{ route('dosen.ttd.gambar', $pengajuan->tandaTangan) }}"
              alt="TTD Dosen"
              style="max-height:100px;border:1px solid #ccc;background:#fff;padding:4px;border-radius:4px;">
@@ -104,7 +106,13 @@
     @if($pengajuan->status === 'dosen_ttd' && $pengajuan->tanggal_ttd)
     <div style="margin-top:20px;border:2px solid #111;padding:16px;">
         <h3>Checklist Selesai</h3>
-        <p>Dosen sudah TTD pada <strong>{{ $pengajuan->tanggal_ttd->format('d M Y, H:i') }}</strong>.</p>
+        <p>
+            Dosen sudah TTD pada
+            <strong>
+                <span class="live-dt-short"
+                    data-at="{{ $pengajuan->tanggal_ttd?->toIso8601String() }}"></span>
+            </strong>.
+        </p>        
         <form method="POST" action="{{ route('admin.pengajuan.selesai', $pengajuan) }}" style="margin-top:12px;">
             @csrf
             <textarea name="catatan" placeholder="Catatan selesai (opsional)" rows="2" style="width:100%;margin-bottom:8px;padding:8px;"></textarea>
@@ -125,7 +133,12 @@
         @foreach($pengajuan->log as $log)
         <div style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
             <div style="font-weight:600;color:#333;">{{ strtoupper($log->status_ke ?? '-') }}</div>
-            <div style="color:#888;font-size:12px;">{{ $log->created_at?->format('d M Y, H:i:s') }}</div>
+            <div style="color:#888;font-size:12px;"
+                class="live-log"
+                data-at="{{ $log->created_at?->toIso8601String() }}">
+                <span class="log-dt"></span>
+                <span class="log-ago" style="margin-left:6px;"></span>
+            </div>
             <div style="color:#555;margin-top:2px;">{{ $log->catatan }}</div>
             @if($log->user)
             <div style="color:#999;font-size:11px;margin-top:1px;">Oleh: {{ $log->user->name }} ({{ $log->actor_role }})</div>
