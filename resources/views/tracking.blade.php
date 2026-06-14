@@ -71,7 +71,6 @@
                     <div class="activity-status" style="background:#eee;color:#bbb;border:2px solid #eee;">✓</div>
                     <div class="activity-content">
                         <div class="activity-title">COMPLETED (READY FOR PICKUP)</div>
-                        <div class="activity-note">Dokumen sudah tersedia dan siap diambil di loket BAA.<br><span style="color:#888;font-size:0.97em;">Catatan: "QR Code akan aktif setelah status selesai."</span></div>
                     </div>
                 </div>
             </div>
@@ -79,7 +78,7 @@
         <div class="tracking-info" style="margin-top:0;">
             <div class="info-panel" style="max-width:350px;">
                 <h3>LOKASI PENGAMBILAN</h3>
-                <div>Layanan dilakukan di loket resmi Biro Administrasi Akademik (BAA) Universitas Muhammadiyah Surakarta.<br><br><b>LOKET PELAYANAN:</b><br>Gedung Siti Walidah, Lantai 2<br>Jam Operasional: 08.00 - 15.00 WIB</div>
+                <div>Layanan dilakukan di TU FKI Universitas Muhammadiyah Surakarta.<br><br><b>LOKET PELAYANAN:</b><br>Gedung J, Kampus 2<br>Jam Operasional: 08.00 - 15.00 WIB</div>
             </div>
             <div class="info-panel" style="max-width:350px;">
                 <h3>PENTING</h3>

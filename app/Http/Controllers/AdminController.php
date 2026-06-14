@@ -242,39 +242,34 @@ class AdminController extends Controller
     }
 
     public function storeUser(Request $request)
-    {
-        $rules = [
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', PasswordRule::min(8)],
-            'role'     => ['required', 'in:mahasiswa,dosen,admin'],
-        ];
+{
+    $rules = [
+        'name'     => ['required', 'string', 'max:255'],
+        'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
+        'password' => ['required', 'string', 'min:8'],
+        'role'     => ['required', 'in:mahasiswa,dosen,admin'],
+    ];
 
-        if ($request->role === 'mahasiswa') {
-            $rules['nim']      = ['nullable', 'string', 'max:20', 'unique:users,nim'];
-            $rules['prodi']    = ['nullable', 'string', 'max:255'];
-            $rules['semester'] = ['nullable', 'integer', 'min:1', 'max:14'];
-        }
-
-        $data = $request->validate($rules);
-
-        $userData = [
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role'     => $data['role'],
-        ];
-
-        if ($data['role'] === 'mahasiswa') {
-            $userData['nim']      = $data['nim'] ?? null;
-            $userData['prodi']    = $data['prodi'] ?? null;
-            $userData['semester'] = $data['semester'] ?? null;
-        }
-
-        User::create($userData);
-
-        return back()->with('success', 'Akun ' . $data['name'] . ' (' . $data['role'] . ') berhasil dibuat.');
+    if ($request->role === 'mahasiswa') {
+        $rules['nim']      = ['nullable', 'string', 'max:20', 'unique:users,nim'];
+        $rules['prodi']    = ['nullable', 'string', 'max:255'];
+        $rules['semester'] = ['nullable', 'integer', 'min:1', 'max:14'];
     }
+
+    $data = $request->validate($rules);
+
+    User::create([
+        'name'     => $data['name'],
+        'email'    => $data['email'],
+        'password' => Hash::make($data['password']),
+        'role'     => $data['role'],
+        'nim'      => $data['role'] === 'mahasiswa' ? ($data['nim'] ?? null) : null,
+        'prodi'    => $data['role'] === 'mahasiswa' ? ($data['prodi'] ?? null) : null,
+        'semester' => $data['role'] === 'mahasiswa' ? ($data['semester'] ?? null) : null,
+    ]);
+
+    return back()->with('success', 'Akun ' . $data['name'] . ' berhasil dibuat.');
+}
 
     public function updateUser(Request $request, User $user)
     {

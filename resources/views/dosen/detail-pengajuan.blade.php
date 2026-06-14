@@ -12,17 +12,6 @@
 
     <h1 style="font-size:28px;font-weight:900;margin:12px 0;">{{ $pengajuan->kode }} — {{ $pengajuan->jenis_label }}</h1>
 
-    @if(session('success'))
-        <div style="background:#f0fff0;border:2px solid #27AE60;padding:12px 16px;margin-bottom:14px;color:#0a7a0a;font-weight:600;border-radius:6px;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div style="background:#fff6f6;border:2px solid #E53935;padding:12px 16px;margin-bottom:14px;color:#a00;font-weight:600;border-radius:6px;">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
         <div class="detail-card" style="border:2px solid #111;padding:16px;">
             <h3>Profil Mahasiswa</h3>

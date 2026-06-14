@@ -5,35 +5,40 @@
 @section('title', 'Tanda Tangan Digital — ' . $pengajuan->kode)
 
 @section('content')
-<div class="max-w-2xl mx-auto py-8 px-4">
+<div style="max-width:680px;margin:0 auto;padding:32px 16px;">
+
+    {{-- Header --}}
+    <div style="margin-bottom:24px;">
+        <a href="{{ route('dosen.menunggu') }}"
+           style="font-size:13px;color:#888;text-decoration:none;">← Kembali</a>
+        <h1 style="font-size:22px;font-weight:700;margin:10px 0 2px;">Tanda Tangan Digital</h1>
+        <p style="font-size:13px;color:#888;">{{ $pengajuan->kode }}</p>
+    </div>
 
     {{-- Info pengajuan --}}
-    <div class="bg-white rounded-xl border shadow-sm p-5 mb-6">
-        <p class="text-xs text-gray-400 mb-1">Kode Pengajuan</p>
-        <p class="text-lg font-semibold text-gray-800">{{ $pengajuan->kode }}</p>
-
-        <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+    <div style="border:2px solid #111;border-radius:8px;padding:18px;margin-bottom:16px;background:#fff;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
             <div>
-                <p class="text-gray-400 text-xs">Mahasiswa</p>
-                <p class="font-medium">{{ $pengajuan->nama_mahasiswa }}</p>
-                <p class="text-gray-500 text-xs">{{ $pengajuan->nim_mahasiswa }}</p>
+                <p style="font-size:11px;color:#aaa;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em;">Mahasiswa</p>
+                <p style="font-size:14px;font-weight:600;margin:0;">{{ $pengajuan->nama_mahasiswa }}</p>
+                <p style="font-size:12px;color:#888;margin:2px 0 0;">{{ $pengajuan->nim_mahasiswa }}</p>
             </div>
             <div>
-                <p class="text-gray-400 text-xs">Jenis Layanan</p>
-                <p class="font-medium">{{ \App\Models\Pengajuan::JENIS_LABEL[$pengajuan->jenis_layanan] }}</p>
+                <p style="font-size:11px;color:#aaa;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em;">Jenis Layanan</p>
+                <p style="font-size:14px;font-weight:600;margin:0;">{{ \App\Models\Pengajuan::JENIS_LABEL[$pengajuan->jenis_layanan] }}</p>
             </div>
         </div>
 
         {{-- Dokumen persyaratan --}}
         @if($pengajuan->dokumen->count())
-        <div class="mt-4 border-t pt-3">
-            <p class="text-xs text-gray-400 mb-2">Dokumen Persyaratan</p>
-            <div class="space-y-1">
+        <div style="border-top:1px solid #eee;padding-top:14px;">
+            <p style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Dokumen Persyaratan</p>
+            <div style="display:flex;flex-direction:column;gap:6px;">
                 @foreach($pengajuan->dokumen as $dok)
                 <a href="{{ Storage::url($dok->path_file) }}"
                    target="_blank"
-                   class="flex items-center gap-2 text-sm text-blue-600 hover:underline">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#a259e6;text-decoration:none;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
@@ -45,70 +50,60 @@
         @endif
     </div>
 
-    {{-- TTD sudah ada sebelumnya --}}
+    {{-- TTD sudah ada --}}
     @if($ttdExisting)
-    <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-        <div class="flex items-start justify-between gap-4">
+    <div style="border:2px solid #27AE60;border-radius:8px;padding:16px;margin-bottom:16px;background:#f0fff4;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
             <div>
-                <p class="text-sm font-medium text-green-800">✓ Sudah ditandatangani</p>
-                <p class="text-xs text-green-600 mt-0.5">
+                <p style="font-size:13px;font-weight:700;color:#0a7a0a;margin:0 0 4px;">✓ Sudah ditandatangani</p>
+                <p style="font-size:12px;color:#4a9a6a;margin:0;">
                     {{ $ttdExisting->ditandatangani_pada->format('d M Y, H:i') }} WIB
                 </p>
             </div>
             <img src="{{ $ttdExisting->urlGambar() }}"
                  alt="TTD"
-                 class="h-16 border rounded bg-white p-1 object-contain">
+                 style="height:56px;border:1px solid #ccc;border-radius:4px;background:#fff;padding:4px;object-fit:contain;">
         </div>
-        <p class="text-xs text-gray-500 mt-3">
+        <p style="font-size:12px;color:#888;margin:10px 0 0;">
             Gambar ulang tanda tangan di bawah jika ingin mengubah.
         </p>
     </div>
     @endif
 
     {{-- Canvas area --}}
-    <div class="bg-white rounded-xl border shadow-sm p-5">
-        <p class="text-sm font-medium text-gray-700 mb-3">
+    <div style="border:2px solid #111;border-radius:8px;padding:20px;background:#fff;">
+        <p style="font-size:13px;font-weight:700;margin:0 0 14px;">
             {{ $ttdExisting ? 'Gambar Ulang Tanda Tangan' : 'Tanda Tangan Digital' }}
         </p>
 
-        <div class="relative border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 select-none"
-             style="touch-action: none;">
+        {{-- Canvas --}}
+        <div style="position:relative;border:2px dashed #d1d5db;border-radius:8px;background:#f9fafb;touch-action:none;">
             <canvas id="sign-canvas"
-                    class="block w-full rounded-lg cursor-crosshair"
-                    style="height: 200px;">
+                    style="display:block;width:100%;height:200px;border-radius:8px;cursor:crosshair;">
             </canvas>
             {{-- Garis bantu --}}
-            <div class="absolute bottom-8 left-6 right-6 border-b border-gray-300 pointer-events-none"></div>
-            <p class="absolute bottom-2 left-0 right-0 text-center text-xs text-gray-400 pointer-events-none">
+            <div style="position:absolute;bottom:32px;left:20px;right:20px;border-bottom:1px solid #d1d5db;pointer-events:none;"></div>
+            <p style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:11px;color:#bbb;pointer-events:none;margin:0;">
                 Tanda tangan di atas garis
             </p>
         </div>
 
-        {{-- Form catatan --}}
-        <div class="mt-4">
-            <label class="block text-xs text-gray-500 mb-1">Catatan (opsional)</label>
-            <textarea id="input-catatan"
-                      rows="2"
-                      placeholder="Disetujui dan ditandatangani..."
-                      class="w-full text-sm border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"></textarea>
-        </div>
-
         {{-- Tombol --}}
-        <div class="flex gap-3 mt-4">
+        <div style="display:flex;gap:10px;margin-top:14px;">
             <button id="btn-clear"
                     type="button"
-                    class="flex-1 py-2.5 rounded-lg border text-sm text-gray-600 hover:bg-gray-50 transition">
+                    style="flex:1;padding:10px;border:2px solid #ddd;border-radius:6px;background:#fff;font-size:13px;color:#555;cursor:pointer;font-weight:600;">
                 Ulangi
             </button>
             <button id="btn-submit"
                     type="button"
-                    class="flex-1 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    style="flex:1;padding:10px;border:none;border-radius:6px;background:#a259e6;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">
                 Simpan Tanda Tangan
             </button>
         </div>
 
         {{-- Feedback --}}
-        <div id="feedback" class="mt-3 hidden text-sm rounded-lg px-4 py-3"></div>
+        <div id="feedback" style="display:none;margin-top:12px;font-size:13px;border-radius:6px;padding:10px 14px;"></div>
     </div>
 
 </div>
@@ -127,7 +122,6 @@
     let isDrawing  = false;
     let hasStrokes = false;
 
-    // Setup canvas resolusi tinggi (retina-safe)
     function resizeCanvas() {
         const rect  = canvas.getBoundingClientRect();
         const ratio = window.devicePixelRatio || 1;
@@ -180,7 +174,7 @@
         const rect = canvas.getBoundingClientRect();
         ctx.clearRect(0, 0, rect.width, rect.height);
         hasStrokes = false;
-        feedback.classList.add('hidden');
+        feedback.style.display = 'none';
     });
 
     btnSave.addEventListener('click', async () => {
@@ -198,18 +192,16 @@
         formData.append('_token', '{{ csrf_token() }}');
 
         try {
-            const res  = await fetch('{{ route("dosen.ttd.store", $pengajuan->id) }}', {
+            const res = await fetch('{{ route("dosen.ttd.store", $pengajuan->id) }}', {
                 method: 'POST',
                 body: formData,
             });
 
             if (res.redirected) {
-                // Laravel redirect → ikuti redirect-nya
                 window.location.href = res.url;
                 return;
             }
 
-            const text = await res.text();
             if (res.ok) {
                 showFeedback('✓ Tanda tangan berhasil disimpan.', 'success');
                 btnSave.textContent        = 'Tersimpan';
@@ -228,9 +220,11 @@
     });
 
     function showFeedback(msg, type) {
-        feedback.textContent = msg;
-        feedback.className   = 'mt-3 text-sm rounded-lg px-4 py-3 ' +
-            (type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700');
+        feedback.textContent   = msg;
+        feedback.style.display = 'block';
+        feedback.style.background = type === 'success' ? '#f0fff4' : '#fff6f6';
+        feedback.style.color      = type === 'success' ? '#0a7a0a' : '#a00';
+        feedback.style.border     = type === 'success' ? '1px solid #27AE60' : '1px solid #E53935';
     }
 })();
 </script>

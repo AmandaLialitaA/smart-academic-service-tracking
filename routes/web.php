@@ -46,6 +46,7 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function () {
     Route::get('/pengajuan/{pengajuan}', [PengajuanController::class, 'show'])->name('mahasiswa.pengajuan.detail');
     Route::get('/tracking/{pengajuan}', [PengajuanController::class, 'tracking'])->name('mahasiswa.tracking');
     Route::get('/riwayat', [PengajuanController::class, 'riwayat'])->name('mahasiswa.riwayat');
+    Route::get('/ttd/{tandaTangan}/unduh', [TandaTanganController::class, 'unduh'])->name('mahasiswa.ttd.unduh'); // tambah ini
 });
 
 Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->group(function () {

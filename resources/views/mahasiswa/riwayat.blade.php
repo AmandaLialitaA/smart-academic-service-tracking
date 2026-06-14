@@ -8,11 +8,6 @@
 @endsection
 @section('content')
 <div class="dashboard-main">
-    @if(session('success'))
-        <div style="background:#f0fff0;border:2px solid #27AE60;padding:14px 18px;margin-bottom:16px;color:#0a7a0a;font-weight:600;">
-            {{ session('success') }}
-        </div>
-    @endif
     @if(session('error'))
         <div style="background:#fff6f6;border:2px solid #E53935;padding:14px 18px;margin-bottom:16px;color:#a00;font-weight:600;">
             {{ session('error') }}

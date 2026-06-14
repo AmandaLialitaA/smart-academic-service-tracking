@@ -68,14 +68,8 @@
                     <strong>{{ $pengajuan->tanggal_ttd?->format('d M Y, H:i') }}</strong>.
                 </p>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    {{-- Preview TTD --}}
-                    <a href="{{ route('dosen.ttd.gambar', $pengajuan->tandaTangan) }}"
-                       target="_blank"
-                       style="padding:9px 18px;background:#27AE60;color:#fff;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">
-                        👁 Lihat Tanda Tangan Dosen
-                    </a>
                     {{-- Unduh TTD --}}
-                    <a href="{{ route('dosen.ttd.unduh', $pengajuan->tandaTangan) }}"
+                    <a href="{{ route('mahasiswa.ttd.unduh', $pengajuan->tandaTangan) }}"
                        style="padding:9px 18px;background:#1565C0;color:#fff;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">
                         ⬇ Unduh File TTD
                     </a>

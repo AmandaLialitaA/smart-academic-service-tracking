@@ -11,16 +11,6 @@
     <h1 class="da-title">KELOLA PENGGUNA</h1>
     <p class="da-subtitle">Buat, edit, atau hapus akun mahasiswa, dosen, dan admin.</p>
 
-    @if(session('success'))
-        <div style="background:#f0fff0;border:2px solid #27AE60;padding:12px 16px;margin:12px 0;color:#0a7a0a;font-weight:600;border-radius:6px;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div style="background:#fff6f6;border:2px solid #E53935;padding:12px 16px;margin:12px 0;color:#a00;font-weight:600;border-radius:6px;">
-            {{ session('error') }}
-        </div>
-    @endif
     @if($errors->any())
         <div style="background:#fff6f6;border:2px solid #E53935;padding:12px 16px;margin:12px 0;color:#a00;border-radius:6px;">
             <strong>Terdapat kesalahan:</strong>

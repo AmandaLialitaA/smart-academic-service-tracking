@@ -32,19 +32,6 @@
                 <strong>Peran:</strong> {{ ucfirst(auth()->user()->role ?? 'Pengguna') }}
             </div>
 
-            @if(session('success'))
-                <div style="padding:14px; border:1px solid #c7ecc7; background:#f0fff0; color:#0a7a0a;">{{ session('success') }}</div>
-            @endif
-
-            @if($errors->any())
-                <div style="padding:14px; border:1px solid #ffd6d6; background:#fff6f6; color:#a00;">
-                    <ul style="margin:0; padding-left:18px;">
-                        @foreach($errors->all() as $err)
-                            <li>{{ $err }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
             {{-- FOTO PROFIL --}}
             <div style="padding:28px; border:1px solid #EEE; background:#fff; border-radius:14px; box-shadow:0 2px 10px rgba(0,0,0,0.04);">

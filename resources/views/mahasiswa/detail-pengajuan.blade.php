@@ -56,6 +56,7 @@
                 <div><span class="detail-item-label">NIM</span><span class="detail-item-value">{{ $pengajuan->nim_mahasiswa }}</span></div>
                 <div><span class="detail-item-label">Semester</span><span class="detail-item-value">{{ $pengajuan->semester_mahasiswa ?? '-' }}</span></div>
                 <div><span class="detail-item-label">Status Internal</span><span class="detail-item-value">{{ \App\Models\Pengajuan::STATUS_LABEL[$pengajuan->status] ?? $pengajuan->status }}</span></div>
+                <div><span class="detail-item-label">Catatan Mahasiswa</span><span class="detail-item-value">{{ $pengajuan->catatan_mahasiswa ?? '-' }}</span></div>
             </div>
         </div>
     </div>
