@@ -8,20 +8,22 @@ use App\Models\Pengajuan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 
 class AdminController extends Controller
 {
     public function dashboard()
     {
         $stats = [
-            'total'          => Pengajuan::count(),
-            'belum_selesai'  => Pengajuan::whereNotIn('status', ['selesai', 'ditolak'])->count(),
-            'submitted'      => Pengajuan::byStatus('submitted')->count(),
-            'admin_verifikasi'=> Pengajuan::byStatus('admin_verifikasi')->count(),
-            'dosen_ttd'      => Pengajuan::byStatus('dosen_ttd')->count(),
-            'selesai'        => Pengajuan::byStatus('selesai')->count(),
-            'ditolak'        => Pengajuan::byStatus('ditolak')->count(),
-            'hari_ini'       => Pengajuan::whereDate('created_at', today())->count(),
+            'total'           => Pengajuan::count(),
+            'belum_selesai'   => Pengajuan::whereNotIn('status', ['selesai', 'ditolak'])->count(),
+            'submitted'       => Pengajuan::byStatus('submitted')->count(),
+            'admin_verifikasi' => Pengajuan::byStatus('admin_verifikasi')->count(),
+            'dosen_ttd'       => Pengajuan::byStatus('dosen_ttd')->count(),
+            'selesai'         => Pengajuan::byStatus('selesai')->count(),
+            'ditolak'         => Pengajuan::byStatus('ditolak')->count(),
+            'hari_ini'        => Pengajuan::whereDate('created_at', today())->count(),
         ];
 
         $pengajuanTerbaru = Pengajuan::with('mahasiswa')
@@ -60,9 +62,9 @@ class AdminController extends Controller
         $pengajuan = $query->latest()->paginate(15)->withQueryString();
 
         $stats = [
-            'total'   => Pengajuan::whereIn('status', ['submitted', 'admin_verifikasi'])->count(),
+            'total'    => Pengajuan::whereIn('status', ['submitted', 'admin_verifikasi'])->count(),
             'submitted' => Pengajuan::byStatus('submitted')->count(),
-            'waiting' => Pengajuan::byStatus('admin_verifikasi')->count(),
+            'waiting'  => Pengajuan::byStatus('admin_verifikasi')->count(),
         ];
 
         return view('admin.verifikasi-list', compact('pengajuan', 'stats'));
@@ -116,18 +118,45 @@ class AdminController extends Controller
         ]);
     }
 
+    // POINT 4 FIX: tolak pengajuan admin — izinkan dari status submitted DAN admin_verifikasi
     public function rejectPengajuan(Request $request, Pengajuan $pengajuan)
     {
         $request->validate([
             'catatan' => ['required', 'string', 'min:5', 'max:500'],
         ]);
 
-        $request->merge(['status' => 'ditolak']);
+        // Cek status yang boleh ditolak admin: submitted atau admin_verifikasi
+        if (!in_array($pengajuan->status, ['submitted', 'admin_verifikasi'])) {
+            return back()->with('error', 'Pengajuan tidak dapat ditolak pada tahap ini. Status saat ini: ' . ($pengajuan->status));
+        }
 
-        return $this->prosesUpdateStatus($request, $pengajuan, 'admin', [
-            'admin_verifikasi_id' => auth()->id(),
-            'catatan_admin'       => $request->catatan,
-        ]);
+        DB::beginTransaction();
+        try {
+            $statusLama = $pengajuan->status;
+
+            $pengajuan->update([
+                'status'             => 'ditolak',
+                'catatan_penolakan'  => $request->catatan,
+                'catatan_admin'      => $request->catatan,
+                'admin_verifikasi_id'=> auth()->id(),
+                'tanggal_ditolak'    => now(),
+            ]);
+
+            LogPengajuan::create([
+                'pengajuan_id' => $pengajuan->id,
+                'user_id'      => auth()->id(),
+                'status_dari'  => $statusLama,
+                'status_ke'    => 'ditolak',
+                'catatan'      => '[DITOLAK ADMIN] ' . $request->catatan,
+                'actor_role'   => 'admin',
+            ]);
+
+            DB::commit();
+            return back()->with('success', 'Pengajuan berhasil ditolak.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menolak pengajuan: ' . $e->getMessage());
+        }
     }
 
     public function teruskeDosen(Request $request, Pengajuan $pengajuan)
@@ -172,6 +201,7 @@ class AdminController extends Controller
         }
     }
 
+    // POINT 8: checklist selesai — admin konfirmasi selesai, mahasiswa bisa unduh surat ber-TTD
     public function checklist(Request $request, Pengajuan $pengajuan)
     {
         $request->validate([
@@ -191,9 +221,107 @@ class AdminController extends Controller
                 'tanggal_selesai'  => now(),
             ],
             'selesai',
-            $request->catatan ?? 'Pengajuan selesai diproses. Dokumen siap diambil.'
+            $request->catatan ?? 'Pengajuan selesai diproses. Dokumen bertanda tangan siap diunduh.'
         );
     }
+
+    public function show(Pengajuan $pengajuan)
+    {
+        $pengajuan->load(['mahasiswa', 'dosen', 'dokumen', 'log.user', 'tandaTangan']);
+        $daftarDosen = User::where('role', 'dosen')->get();
+
+        return view('admin.verifikasi', compact('pengajuan', 'daftarDosen'));
+    }
+
+    // ── POINT 2: Buat user baru dari panel admin ──────────────────────────────
+
+    public function usersIndex()
+    {
+        $users = User::whereIn('role', ['mahasiswa', 'dosen'])->latest()->paginate(20);
+        return view('admin.users', compact('users'));
+    }
+
+    public function storeUser(Request $request)
+    {
+        $rules = [
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', PasswordRule::min(8)],
+            'role'     => ['required', 'in:mahasiswa,dosen,admin'],
+        ];
+
+        if ($request->role === 'mahasiswa') {
+            $rules['nim']      = ['nullable', 'string', 'max:20', 'unique:users,nim'];
+            $rules['prodi']    = ['nullable', 'string', 'max:255'];
+            $rules['semester'] = ['nullable', 'integer', 'min:1', 'max:14'];
+        }
+
+        $data = $request->validate($rules);
+
+        $userData = [
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role'     => $data['role'],
+        ];
+
+        if ($data['role'] === 'mahasiswa') {
+            $userData['nim']      = $data['nim'] ?? null;
+            $userData['prodi']    = $data['prodi'] ?? null;
+            $userData['semester'] = $data['semester'] ?? null;
+        }
+
+        User::create($userData);
+
+        return back()->with('success', 'Akun ' . $data['name'] . ' (' . $data['role'] . ') berhasil dibuat.');
+    }
+
+    public function updateUser(Request $request, User $user)
+    {
+        $rules = [
+            'name'  => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'role'  => ['required', 'in:mahasiswa,dosen,admin'],
+        ];
+
+        if ($request->filled('password')) {
+            $rules['password'] = [PasswordRule::min(8)];
+        }
+
+        $data = $request->validate($rules);
+
+        $updateData = [
+            'name'  => $data['name'],
+            'email' => $data['email'],
+            'role'  => $data['role'],
+        ];
+
+        if ($request->filled('password')) {
+            $updateData['password'] = Hash::make($data['password']);
+        }
+
+        $user->update($updateData);
+
+        return back()->with('success', 'Data user ' . $user->name . ' berhasil diperbarui.');
+    }
+
+    // POINT 3: Hapus akun — benar-benar hapus dari DB (hard delete)
+    public function destroyUser(User $user)
+    {
+        // Jangan bisa hapus akun diri sendiri
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        $nama = $user->name;
+
+        // Hard delete — benar-benar hapus dari database
+        $user->delete();
+
+        return back()->with('success', "Akun {$nama} berhasil dihapus dari database.");
+    }
+
+    // ── Private helper ────────────────────────────────────────────────────────
 
     private function prosesUpdateStatus(
         Request $request,
@@ -203,12 +331,12 @@ class AdminController extends Controller
         ?string $forceStatus = null,
         ?string $forceCatatan = null
     ) {
-        $statusBaru  = $forceStatus ?? $request->status;
-        $catatan     = $forceCatatan ?? $request->catatan;
+        $statusBaru = $forceStatus ?? $request->status;
+        $catatan    = $forceCatatan ?? $request->catatan;
 
         if (!$pengajuan->bisaTransisiKe($statusBaru)) {
             return back()->with('error',
-                "Tidak bisa mengubah status dari '{$pengajuan->status}' ke '{$statusBaru}'. Status tidak boleh lompat tahap."
+                "Tidak bisa mengubah status dari '{$pengajuan->status}' ke '{$statusBaru}'."
             );
         }
 
@@ -241,13 +369,5 @@ class AdminController extends Controller
             DB::rollBack();
             return back()->with('error', 'Gagal update status: ' . $e->getMessage());
         }
-    }
-
-    public function show(Pengajuan $pengajuan)
-    {
-        $pengajuan->load(['mahasiswa', 'dosen', 'dokumen', 'log.user', 'tandaTangan']);
-        $daftarDosen = User::where('role', 'dosen')->get();
-
-        return view('admin.verifikasi', compact('pengajuan', 'daftarDosen'));
     }
 }

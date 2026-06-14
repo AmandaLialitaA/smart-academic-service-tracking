@@ -11,10 +11,11 @@
 </head>
 <body>
     @php
-        $authUser = auth()->user();
+        $authUser   = auth()->user();
         $topbarName = $authUser?->name ?? 'Pengguna';
         $topbarRole = $authUser?->roleLabel() ?? 'UMS Academic';
     @endphp
+
     <div class="topbar-global">
         <div class="topbar-left">
             <div class="topbar-brand-icon" aria-hidden="true">
@@ -26,22 +27,22 @@
             </div>
             <span class="topbar-title">Smart Academic Service Tracking System UMS</span>
         </div>
+
         <div class="topbar-right">
+            {{-- POINT 7: jam real-time tetap ada di topbar --}}
             <div class="live-clock-box">
                 <span id="live-clock"></span>
                 <span id="live-date"></span>
             </div>
 
-            <div style="position: relative; display: flex; align-items: center;">
-                <i data-lucide="bell" class="topbar-notif"></i>
-                <span class="notif-dot" id="notif-dot" style="display:none;"></span>
-            </div>
+            {{-- POINT 9: lonceng (bell) dihapus --}}
 
             <div class="topbar-user">
                 <span class="topbar-user-name" id="topbar-user-name">{{ $topbarName }}</span>
                 <span class="topbar-user-role" id="topbar-user-role">{{ $topbarRole }}</span>
             </div>
-            <img src="{{ $authUser?->avatar ? asset('storage/'.$authUser->avatar) : 'https://i.pravatar.cc/36?u='.($authUser?->id ?? 'guest') }}" class="topbar-avatar" alt="avatar">
+            <img src="{{ $authUser?->avatar ? asset('storage/'.$authUser->avatar) : 'https://i.pravatar.cc/36?u='.($authUser?->id ?? 'guest') }}"
+                 class="topbar-avatar" alt="avatar">
         </div>
     </div>
 
@@ -69,5 +70,6 @@
 
     <script>lucide.createIcons();</script>
     <script src="{{ asset('js/realtime.js') }}"></script>
+    @stack('scripts')
 </body>
 </html>

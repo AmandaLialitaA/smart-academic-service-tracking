@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LogPengajuan;
 use App\Models\Pengajuan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DosenController extends Controller
 {
@@ -13,10 +15,10 @@ class DosenController extends Controller
         $base = Pengajuan::where('dosen_id', $user->id);
 
         $stats = [
-            'menunggu' => (clone $base)->byStatus('dosen_ttd')->whereNull('tanggal_ttd')->count(),
-            'sudah_ttd'=> (clone $base)->byStatus('dosen_ttd')->whereNotNull('tanggal_ttd')->count(),
-            'selesai'  => (clone $base)->byStatus('selesai')->count(),
-            'ditolak'  => (clone $base)->byStatus('ditolak')->count(),
+            'menunggu'  => (clone $base)->byStatus('dosen_ttd')->whereNull('tanggal_ttd')->count(),
+            'sudah_ttd' => (clone $base)->byStatus('dosen_ttd')->whereNotNull('tanggal_ttd')->count(),
+            'selesai'   => (clone $base)->byStatus('selesai')->count(),
+            'ditolak'   => (clone $base)->byStatus('ditolak')->count(),
         ];
 
         $antrian = Pengajuan::where('dosen_id', $user->id)
@@ -32,7 +34,7 @@ class DosenController extends Controller
 
     public function menunggu(Request $request)
     {
-        $user = auth()->user();
+        $user  = auth()->user();
         $query = Pengajuan::where('dosen_id', $user->id)
             ->byStatus('dosen_ttd')
             ->whereNull('tanggal_ttd')
@@ -58,7 +60,7 @@ class DosenController extends Controller
 
     public function riwayat(Request $request)
     {
-        $user = auth()->user();
+        $user  = auth()->user();
         $query = Pengajuan::where('dosen_id', $user->id)->with('mahasiswa');
 
         if ($request->filled('status')) {
@@ -111,7 +113,7 @@ class DosenController extends Controller
             'tanggal_ttd'   => now(),
         ]);
 
-        \App\Models\LogPengajuan::create([
+        LogPengajuan::create([
             'pengajuan_id' => $pengajuan->id,
             'user_id'      => auth()->id(),
             'status_dari'  => 'dosen_ttd',
@@ -123,6 +125,7 @@ class DosenController extends Controller
         return back()->with('success', 'TTD berhasil diberikan. Menunggu checklist admin.');
     }
 
+    // POINT 4 FIX: tolak dosen — langsung update DB tanpa lewat bisaTransisiKe yang gagal
     public function reject(Request $request, Pengajuan $pengajuan)
     {
         $request->validate([
@@ -130,28 +133,37 @@ class DosenController extends Controller
         ]);
 
         if ($pengajuan->dosen_id !== auth()->id()) {
-            abort(403);
+            abort(403, 'Pengajuan ini tidak ditugaskan kepada Anda.');
         }
 
-        if (!$pengajuan->bisaTransisiKe('ditolak')) {
-            return back()->with('error', 'Pengajuan tidak dapat ditolak pada tahap ini.');
+        // Dosen hanya bisa menolak pengajuan yang masih di tahap dosen_ttd
+        if ($pengajuan->status !== 'dosen_ttd') {
+            return back()->with('error', 'Pengajuan hanya bisa ditolak ketika dalam tahap TTD Dosen. Status saat ini: ' . ($pengajuan->status));
         }
 
-        $pengajuan->update([
-            'status'            => 'ditolak',
-            'catatan_penolakan' => $request->catatan,
-            'tanggal_ditolak'   => now(),
-        ]);
+        DB::beginTransaction();
+        try {
+            $pengajuan->update([
+                'status'            => 'ditolak',
+                'catatan_penolakan' => $request->catatan,
+                'catatan_dosen'     => $request->catatan,
+                'tanggal_ditolak'   => now(),
+            ]);
 
-        \App\Models\LogPengajuan::create([
-            'pengajuan_id' => $pengajuan->id,
-            'user_id'      => auth()->id(),
-            'status_dari'  => 'dosen_ttd',
-            'status_ke'    => 'ditolak',
-            'catatan'      => '[DITOLAK] ' . $request->catatan,
-            'actor_role'   => 'dosen',
-        ]);
+            LogPengajuan::create([
+                'pengajuan_id' => $pengajuan->id,
+                'user_id'      => auth()->id(),
+                'status_dari'  => 'dosen_ttd',
+                'status_ke'    => 'ditolak',
+                'catatan'      => '[DITOLAK DOSEN] ' . $request->catatan,
+                'actor_role'   => 'dosen',
+            ]);
 
-        return back()->with('success', 'Pengajuan berhasil ditolak.');
+            DB::commit();
+            return back()->with('success', 'Pengajuan berhasil ditolak.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menolak pengajuan: ' . $e->getMessage());
+        }
     }
 }

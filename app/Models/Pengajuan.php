@@ -16,6 +16,8 @@ class Pengajuan extends Model
         'admin_verifikasi_id', 'admin_selesai_id',
         'jenis_layanan', 'nama_mahasiswa', 'nim_mahasiswa',
         'prodi_mahasiswa', 'semester_mahasiswa', 'keperluan',
+        // POINT 6: catatan opsional dari mahasiswa
+        'catatan_mahasiswa',
         'status',
         'tanggal_submit', 'tanggal_verifikasi',
         'tanggal_ttd', 'tanggal_selesai', 'tanggal_ditolak',
@@ -23,11 +25,11 @@ class Pengajuan extends Model
     ];
 
     protected $casts = [
-        'tanggal_submit'      => 'datetime',
-        'tanggal_verifikasi'  => 'datetime',
-        'tanggal_ttd'         => 'datetime',
-        'tanggal_selesai'     => 'datetime',
-        'tanggal_ditolak'     => 'datetime',
+        'tanggal_submit'     => 'datetime',
+        'tanggal_verifikasi' => 'datetime',
+        'tanggal_ttd'        => 'datetime',
+        'tanggal_selesai'    => 'datetime',
+        'tanggal_ditolak'    => 'datetime',
     ];
 
     // ── Label & urutan status ─────────────────────────────────
@@ -39,11 +41,12 @@ class Pengajuan extends Model
         'ditolak'          => 99,
     ];
 
+    // POINT 8: label "selesai" berubah dari "Selesai – Siap Diambil" → "Selesai"
     const STATUS_LABEL = [
         'submitted'        => 'Menunggu Verifikasi Admin',
         'admin_verifikasi' => 'Sedang Diverifikasi Admin',
         'dosen_ttd'        => 'Menunggu TTD Dosen',
-        'selesai'          => 'Selesai – Siap Diambil',
+        'selesai'          => 'Selesai',
         'ditolak'          => 'Ditolak',
     ];
 
@@ -121,21 +124,24 @@ class Pengajuan extends Model
 
     // ── Validasi lompat tahap ─────────────────────────────────
     /**
-     * Kembalikan true jika transisi status VALID (tidak lompat tahap).
-     * 'ditolak' boleh dari status manapun selain 'selesai'.
+     * Kembalikan true jika transisi status VALID.
+     * POINT 4 FIX: 'ditolak' boleh dari status manapun kecuali 'selesai' dan 'ditolak'.
+     * Method reject di controller menggunakan logika sendiri sehingga lebih fleksibel.
      */
     public function bisaTransisiKe(string $statusBaru): bool
     {
+        // Status final tidak bisa berubah lagi
         if ($this->status === 'selesai' || $this->status === 'ditolak') {
-            return false; // status final, tidak bisa berubah
+            return false;
         }
 
+        // Bisa ditolak dari tahap manapun (selain final)
         if ($statusBaru === 'ditolak') {
-            return true; // bisa ditolak dari tahap manapun
+            return true;
         }
 
         $urutanSekarang = self::STATUS_ORDER[$this->status] ?? 0;
-        $urutanBaru     = self::STATUS_ORDER[$statusBaru]    ?? 0;
+        $urutanBaru     = self::STATUS_ORDER[$statusBaru]   ?? 0;
 
         // Hanya boleh naik 1 tahap
         return $urutanBaru === $urutanSekarang + 1;

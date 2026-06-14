@@ -85,7 +85,7 @@ class PengajuanController extends Controller
             abort(403);
         }
 
-        $pengajuan->load(['dokumen', 'log.user', 'dosen']);
+        $pengajuan->load(['dokumen', 'log.user', 'dosen', 'tandaTangan']);
 
         return view('mahasiswa.tracking', compact('pengajuan'));
     }
@@ -109,6 +109,8 @@ class PengajuanController extends Controller
                 'prodi_mahasiswa'    => $user->prodi ?? '-',
                 'semester_mahasiswa' => $user->semester ?? 1,
                 'keperluan'          => $request->keperluan,
+                // POINT 6: simpan catatan opsional dari mahasiswa
+                'catatan_mahasiswa'  => $request->catatan ?? null,
                 'status'             => 'submitted',
                 'tanggal_submit'     => now(),
             ]);
@@ -125,14 +127,18 @@ class PengajuanController extends Controller
                 'user_id'      => $user->id,
                 'status_dari'  => null,
                 'status_ke'    => 'submitted',
-                'catatan'      => 'Pengajuan berhasil dikirim oleh mahasiswa.',
+                'catatan'      => 'Pengajuan berhasil dikirim oleh mahasiswa.'
+                    . ($request->catatan ? ' Catatan: ' . $request->catatan : ''),
                 'actor_role'   => 'mahasiswa',
             ]);
 
             DB::commit();
 
+            // POINT 5: redirect dengan session success — TIDAK ada JS alert tambahan di sini
+            // Flash message ditangani di layouts/app.blade.php, tidak double
             return redirect()->route('mahasiswa.riwayat')
                 ->with('success', "Pengajuan berhasil dikirim! Kode: {$pengajuan->kode}");
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Gagal simpan pengajuan', [

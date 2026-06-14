@@ -19,15 +19,19 @@ class TandaTanganController extends Controller
     {
         $this->authorizeDosen($pengajuan);
 
-        $ttdExisting = $pengajuan->tandaTangan; // null kalau belum ada
+        $ttdExisting = $pengajuan->tandaTangan;
         $pengajuan->load(['mahasiswa', 'dokumen']);
 
         return view('dosen.ttd', compact('pengajuan', 'ttdExisting'));
     }
 
     /**
-     * Simpan TTD dari canvas (base64 PNG).
+     * Simpan TTD dari canvas (base64 PNG) ATAU upload file gambar TTD.
      * POST /dosen/pengajuan/{pengajuan}/ttd
+     *
+     * POINT 1: mendukung dua mode:
+     *   - Upload file foto TTD (signature_file)
+     *   - Gambar di canvas (signature_data base64)
      */
     public function store(Request $request, Pengajuan $pengajuan)
     {
@@ -42,29 +46,32 @@ class TandaTanganController extends Controller
         $decoded = null;
         $ext     = 'png';
 
+        // Mode 1: upload file gambar TTD
         if ($request->hasFile('signature_file')) {
             $file    = $request->file('signature_file');
             $decoded = file_get_contents($file->getRealPath());
             $ext     = $file->getClientOriginalExtension();
-        } elseif ($request->filled('signature_data') && preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $request->signature_data)) {
+        }
+        // Mode 2: gambar di canvas (base64)
+        elseif ($request->filled('signature_data') && preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $request->signature_data)) {
             $base64  = preg_replace('/^data:image\/(png|jpeg|jpg);base64,/', '', $request->signature_data);
             $decoded = base64_decode($base64);
             $ext     = 'png';
         }
 
-        if (!$decoded || strlen($decoded) < 500) {
+        if (!$decoded || strlen($decoded) < 100) {
             return back()->with('error', 'Tanda tangan tidak boleh kosong. Unggah foto TTD atau gambar di canvas.');
         }
 
         DB::beginTransaction();
         try {
-            // Hapus TTD lama kalau dosen mau gambar ulang
+            // Hapus TTD lama kalau dosen mau gambar/upload ulang
             if ($pengajuan->tandaTangan) {
                 $pengajuan->tandaTangan->hapusFile();
                 $pengajuan->tandaTangan->delete();
             }
 
-            // Simpan PNG ke storage/app/private/ttd/{pengajuan_id}/
+            // Simpan file ke storage/app/private/ttd/{pengajuan_id}/
             $namaFile = 'ttd_' . $pengajuan->id . '_' . time() . '.' . $ext;
             $pathFile = 'ttd/' . $pengajuan->id . '/' . $namaFile;
             Storage::disk('local')->put($pathFile, $decoded);
@@ -108,8 +115,7 @@ class TandaTanganController extends Controller
     }
 
     /**
-     * Stream gambar TTD ke browser.
-     * File disimpan di disk 'local' (tidak publik), jadi harus lewat sini.
+     * POINT 1: Stream gambar TTD ke browser (preview/inline).
      * GET /dosen/ttd/{tandaTangan}/gambar
      */
     public function gambar(TandaTangan $tandaTangan)
@@ -123,18 +129,42 @@ class TandaTanganController extends Controller
         abort_if(!$boleh, 403);
         abort_if(!Storage::disk('local')->exists($tandaTangan->path_file), 404, 'File tidak ditemukan.');
 
+        $ext      = pathinfo($tandaTangan->path_file, PATHINFO_EXTENSION);
+        $mimeType = in_array($ext, ['jpg', 'jpeg']) ? 'image/jpeg' : 'image/png';
+
         return response(
             Storage::disk('local')->get($tandaTangan->path_file),
             200,
             [
-                'Content-Type'        => 'image/png',
+                'Content-Type'        => $mimeType,
                 'Content-Disposition' => 'inline; filename="' . $tandaTangan->nama_file . '"',
             ]
         );
     }
 
     /**
-     * Hapus TTD (kalau dosen mau gambar ulang, atau admin reset).
+     * POINT 1: Download file TTD (unduh gambar TTD dosen).
+     * GET /dosen/ttd/{tandaTangan}/unduh
+     */
+    public function unduh(TandaTangan $tandaTangan)
+    {
+        $user = auth()->user();
+
+        $boleh = $user->isAdmin()
+            || $user->id === $tandaTangan->dosen_id
+            || $user->id === $tandaTangan->pengajuan->mahasiswa_id;
+
+        abort_if(!$boleh, 403);
+        abort_if(!Storage::disk('local')->exists($tandaTangan->path_file), 404, 'File tidak ditemukan.');
+
+        return Storage::disk('local')->download(
+            $tandaTangan->path_file,
+            'TTD_' . $tandaTangan->pengajuan->kode . '_' . $tandaTangan->nama_file
+        );
+    }
+
+    /**
+     * Hapus TTD (dosen mau gambar ulang, atau admin reset).
      * DELETE /dosen/ttd/{tandaTangan}
      */
     public function destroy(TandaTangan $tandaTangan)
@@ -150,7 +180,7 @@ class TandaTanganController extends Controller
         $tandaTangan->hapusFile();
         $tandaTangan->delete();
 
-        return back()->with('success', 'Tanda tangan dihapus. Silakan menggambar ulang.');
+        return back()->with('success', 'Tanda tangan dihapus. Silakan menggambar atau unggah ulang.');
     }
 
     // ── Private helper ────────────────────────────────────────

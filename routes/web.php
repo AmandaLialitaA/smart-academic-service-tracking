@@ -36,6 +36,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::middleware('auth')->group(function () {
     Route::get('/settings', [SettingsController::class, 'show'])->name('settings');
     Route::post('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password.update');
+    Route::post('/settings/avatar', [SettingsController::class, 'updateAvatar'])->name('settings.avatar.update');
 });
 
 Route::middleware(['auth', 'role:mahasiswa'])->group(function () {
@@ -54,8 +55,15 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::get('/pengajuan/{pengajuan}', [DosenController::class, 'show'])->name('pengajuan.show');
     Route::post('/pengajuan/{pengajuan}/approve', [DosenController::class, 'approve'])->name('pengajuan.approve');
     Route::post('/pengajuan/{pengajuan}/reject', [DosenController::class, 'reject'])->name('pengajuan.reject');
+
+    // TTD routes
+    Route::get('/pengajuan/{pengajuan}/ttd', [TandaTanganController::class, 'show'])->name('ttd.show');
     Route::post('/pengajuan/{pengajuan}/ttd', [TandaTanganController::class, 'store'])->name('ttd.store');
+
+    // POINT 1: gambar (preview) dan unduh file TTD
     Route::get('/ttd/{tandaTangan}/gambar', [TandaTanganController::class, 'gambar'])->name('ttd.gambar');
+    Route::get('/ttd/{tandaTangan}/unduh', [TandaTanganController::class, 'unduh'])->name('ttd.unduh');
+    Route::delete('/ttd/{tandaTangan}', [TandaTanganController::class, 'destroy'])->name('ttd.destroy');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -63,14 +71,23 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/verifikasi', [AdminController::class, 'verifikasiList'])->name('verifikasi');
     Route::get('/verifikasi/{pengajuan}', [AdminController::class, 'show'])->name('verifikasi.detail');
     Route::post('/verifikasi/{pengajuan}/setuju', [AdminController::class, 'approveSubmitted'])->name('verifikasi.setuju');
+
+    // POINT 4 FIX: route tolak — satu route, ditangani AdminController::rejectPengajuan
     Route::post('/verifikasi/{pengajuan}/tolak', [AdminController::class, 'rejectPengajuan'])->name('verifikasi.tolak');
+
     Route::post('/pengajuan/{pengajuan}/teruskan', [AdminController::class, 'teruskeDosen'])->name('pengajuan.teruskan');
     Route::post('/pengajuan/{pengajuan}/selesai', [AdminController::class, 'checklist'])->name('pengajuan.selesai');
     Route::get('/semua-pengajuan', [AdminController::class, 'semuaPengajuan'])->name('semua-pengajuan');
-    Route::get('/settings', [SettingsController::class, 'adminUsersIndex'])->name('settings');
-    Route::post('/users', [SettingsController::class, 'adminStoreUser'])->name('users.store');
-    Route::put('/users/{user}', [SettingsController::class, 'adminUpdateUser'])->name('users.update');
-    Route::delete('/users/{user}', [SettingsController::class, 'adminDestroyUser'])->name('users.destroy');
+
+    // POINT 2 & 3: admin kelola user (buat, update, hapus dari DB)
+    Route::get('/settings', [AdminController::class, 'usersIndex'])->name('settings');
+    Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+    Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
+    Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+
+    // POINT 1: admin juga bisa lihat/unduh TTD dosen
+    Route::get('/ttd/{tandaTangan}/gambar', [TandaTanganController::class, 'gambar'])->name('ttd.gambar');
+    Route::get('/ttd/{tandaTangan}/unduh', [TandaTanganController::class, 'unduh'])->name('ttd.unduh');
 });
 
 Route::middleware('auth')->group(function () {
@@ -79,4 +96,3 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/kontak-admin', fn () => view('auth.kontak-admin'))->name('kontak.admin');
-Route::post('/settings/avatar', [SettingsController::class, 'updateAvatar'])->name('settings.avatar.update');
