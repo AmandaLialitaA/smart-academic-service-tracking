@@ -2,201 +2,173 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LogPengajuan;
+use App\Models\DokumenPengajuan;
 use App\Models\Pengajuan;
 use App\Models\TandaTangan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use setasign\Fpdi\Fpdi;
 
 class TandaTanganController extends Controller
 {
-    /**
-     * Halaman e-sign canvas untuk dosen.
-     * GET /dosen/pengajuan/{pengajuan}/ttd
-     */
+    // ── Show form TTD (jika ada view terpisah) ────────────────
     public function show(Pengajuan $pengajuan)
     {
-        $this->authorizeDosen($pengajuan);
-
-        $ttdExisting = $pengajuan->tandaTangan;
-        $pengajuan->load(['mahasiswa', 'dokumen']);
-
-        return view('dosen.ttd', compact('pengajuan', 'ttdExisting'));
+        abort_unless(
+            $pengajuan->status === 'dosen_ttd' && !$pengajuan->tanggal_ttd,
+            403
+        );
+        return view('dosen.detail-pengajuan', compact('pengajuan'));
     }
 
-    /**
-     * Simpan TTD dari canvas (base64 PNG) ATAU upload file gambar TTD.
-     * POST /dosen/pengajuan/{pengajuan}/ttd
-     *
-     * POINT 1: mendukung dua mode:
-     *   - Upload file foto TTD (signature_file)
-     *   - Gambar di canvas (signature_data base64)
-     */
+    // ── Simpan TTD + embed ke PDF ─────────────────────────────
     public function store(Request $request, Pengajuan $pengajuan)
     {
-        $this->authorizeDosen($pengajuan);
-
         $request->validate([
-            'signature_data' => ['nullable', 'string'],
-            'signature_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
-            'catatan'        => ['nullable', 'string', 'max:500'],
+            'signature_data' => 'required|string',
+            'ttd_page'       => 'required|integer|min:1',
+            'ttd_x_pct'      => 'required|numeric|between:0,1',
+            'ttd_y_pct'      => 'required|numeric|between:0,1',
+            'ttd_w_pct'      => 'required|numeric|between:0,1',
+            'ttd_h_pct'      => 'required|numeric|between:0,1',
         ]);
 
-        $decoded = null;
-        $ext     = 'png';
+        // 1. Ambil dokumen PDF pertama (selain KTM)
+        // DokumenPengajuan tidak punya kolom 'jenis', filter via nama_dokumen
+        $dokumen = $pengajuan->dokumen()
+            ->where('mime_type', 'application/pdf')
+            ->where('nama_dokumen', '!=', 'ktm')
+            ->first();
 
-        // Mode 1: upload file gambar TTD
-        if ($request->hasFile('signature_file')) {
-            $file    = $request->file('signature_file');
-            $decoded = file_get_contents($file->getRealPath());
-            $ext     = $file->getClientOriginalExtension();
-        }
-        // Mode 2: gambar di canvas (base64)
-        elseif ($request->filled('signature_data') && preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $request->signature_data)) {
-            $base64  = preg_replace('/^data:image\/(png|jpeg|jpg);base64,/', '', $request->signature_data);
-            $decoded = base64_decode($base64);
-            $ext     = 'png';
-        }
+        abort_unless($dokumen, 404, 'Dokumen PDF tidak ditemukan.');
 
-        if (!$decoded || strlen($decoded) < 100) {
-            return back()->with('error', 'Tanda tangan tidak boleh kosong. Unggah foto TTD atau gambar di canvas.');
-        }
+        // 2. Decode base64 signature → simpan sebagai PNG sementara
+        $sigBase64  = preg_replace('/^data:image\/\w+;base64,/', '', $request->signature_data);
+        $sigBinary  = base64_decode($sigBase64);
+        $sigTempRel = 'temp/sig_' . uniqid() . '.png';
+        Storage::disk('local')->put($sigTempRel, $sigBinary);
+        $sigAbsPath = Storage::disk('local')->path($sigTempRel);
 
-        DB::beginTransaction();
-        try {
-            // Hapus TTD lama kalau dosen mau gambar/upload ulang
-            if ($pengajuan->tandaTangan) {
-                $pengajuan->tandaTangan->hapusFile();
-                $pengajuan->tandaTangan->delete();
+        // 3. Buka PDF asli dengan FPDI
+        $pdfAbsPath = Storage::disk('local')->path($dokumen->path_file);
+        $fpdi       = new Fpdi();
+        $pageCount  = $fpdi->setSourceFile($pdfAbsPath);
+        $targetPage = min((int) $request->ttd_page, $pageCount);
+
+        for ($p = 1; $p <= $pageCount; $p++) {
+            $tplId = $fpdi->importPage($p);
+            $size  = $fpdi->getTemplateSize($tplId);
+            $ori   = $size['width'] > $size['height'] ? 'L' : 'P';
+
+            $fpdi->AddPage($ori, [$size['width'], $size['height']]);
+            $fpdi->useTemplate($tplId);
+
+            if ($p === $targetPage) {
+                $pageW = $size['width'];
+                $pageH = $size['height'];
+
+                $x = (float) $request->ttd_x_pct * $pageW;
+                $y = (float) $request->ttd_y_pct * $pageH;
+                $w = (float) $request->ttd_w_pct * $pageW;
+                $h = (float) $request->ttd_h_pct * $pageH;
+
+                // Clamp agar tidak keluar batas halaman
+                $x = max(0, min($x, $pageW - $w));
+                $y = max(0, min($y, $pageH - $h));
+
+                $fpdi->Image($sigAbsPath, $x, $y, $w, $h, 'PNG');
             }
-
-            // Simpan file ke storage/app/private/ttd/{pengajuan_id}/
-            $namaFile = 'ttd_' . $pengajuan->id . '_' . time() . '.' . $ext;
-            $pathFile = 'ttd/' . $pengajuan->id . '/' . $namaFile;
-            Storage::disk('local')->put($pathFile, $decoded);
-
-            // Simpan record ke tabel tanda_tangan
-            TandaTangan::create([
-                'pengajuan_id'        => $pengajuan->id,
-                'dosen_id'            => auth()->id(),
-                'path_file'           => $pathFile,
-                'nama_file'           => $namaFile,
-                'ip_address'          => $request->ip(),
-                'ditandatangani_pada' => now(),
-            ]);
-
-            // Update kolom di pengajuan
-            $pengajuan->update([
-                'catatan_dosen' => $request->catatan ?? 'Disetujui dan ditandatangani oleh dosen.',
-                'tanggal_ttd'   => now(),
-            ]);
-
-            // Tulis log
-            LogPengajuan::create([
-                'pengajuan_id' => $pengajuan->id,
-                'user_id'      => auth()->id(),
-                'status_dari'  => $pengajuan->status,
-                'status_ke'    => $pengajuan->status,
-                'catatan'      => '[TTD DIBERIKAN] ' . ($request->catatan ?? 'Dosen telah menandatangani dokumen secara digital.'),
-                'actor_role'   => 'dosen',
-            ]);
-
-            DB::commit();
-
-            return redirect()
-                ->route('dosen.pengajuan.show', $pengajuan)
-                ->with('success', 'Tanda tangan berhasil disimpan.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Gagal menyimpan tanda tangan: ' . $e->getMessage());
         }
+
+        // 4. Simpan PDF hasil ke storage
+        $pdfRelPath = 'ttd/pdf/' . $pengajuan->id . '_' . time() . '.pdf';
+        Storage::disk('local')->makeDirectory('ttd/pdf');
+        $fpdi->Output(Storage::disk('local')->path($pdfRelPath), 'F');
+
+        // 5. Simpan PNG signature ke storage (ikuti pola existing: path_file + nama_file)
+        $sigRelPath  = 'ttd/sig_' . $pengajuan->id . '_' . time() . '.png';
+        $sigNamaFile = 'ttd_' . $pengajuan->kode . '.png';
+        Storage::disk('local')->put($sigRelPath, $sigBinary);
+
+        // 6. Bersihkan file temp
+        Storage::disk('local')->delete($sigTempRel);
+
+        // 7. Simpan/update record TandaTangan
+        TandaTangan::updateOrCreate(
+            ['pengajuan_id' => $pengajuan->id],
+            [
+                'dosen_id'           => auth()->id(),
+                'path_file'          => $sigRelPath,       // PNG signature
+                'nama_file'          => $sigNamaFile,
+                'path_pdf_ttd'       => $pdfRelPath,       // PDF ber-TTD (kolom baru)
+                'ip_address'         => $request->ip(),
+                'catatan'            => $request->catatan,
+                'ditandatangani_pada'=> now(),
+                'ttd_page'           => $targetPage,
+                'ttd_x_pct'         => $request->ttd_x_pct,
+                'ttd_y_pct'         => $request->ttd_y_pct,
+                'ttd_w_pct'         => $request->ttd_w_pct,
+                'ttd_h_pct'         => $request->ttd_h_pct,
+            ]
+        );
+
+        // 8. Update status pengajuan
+        $pengajuan->update(['tanggal_ttd' => now()]);
+
+        return redirect()
+            ->route('dosen.pengajuan.show', $pengajuan)
+            ->with('success', 'Tanda tangan berhasil disimpan.');
     }
 
-    /**
-     * POINT 1: Stream gambar TTD ke browser (preview/inline).
-     * GET /dosen/ttd/{tandaTangan}/gambar
-     */
+    // ── Stream gambar TTD (PNG) ───────────────────────────────
+    // Route: dosen.ttd.gambar & admin.ttd.gambar
     public function gambar(TandaTangan $tandaTangan)
     {
-        $user = auth()->user();
-
-        $boleh = $user->isAdmin()
-            || $user->id === $tandaTangan->dosen_id
-            || $user->id === $tandaTangan->pengajuan->mahasiswa_id;
-
-        abort_if(!$boleh, 403);
-        abort_if(!Storage::disk('local')->exists($tandaTangan->path_file), 404, 'File tidak ditemukan.');
-
-        $ext      = pathinfo($tandaTangan->path_file, PATHINFO_EXTENSION);
-        $mimeType = in_array($ext, ['jpg', 'jpeg']) ? 'image/jpeg' : 'image/png';
+        abort_unless(Storage::disk('local')->exists($tandaTangan->path_file), 404);
 
         return response(
             Storage::disk('local')->get($tandaTangan->path_file),
             200,
-            [
-                'Content-Type'        => $mimeType,
-                'Content-Disposition' => 'inline; filename="' . $tandaTangan->nama_file . '"',
-            ]
+            ['Content-Type' => 'image/png']
         );
     }
 
-    /**
-     * POINT 1: Download file TTD (unduh gambar TTD dosen).
-     * GET /dosen/ttd/{tandaTangan}/unduh
-     */
+    // ── Unduh TTD ─────────────────────────────────────────────
+    // Jika ada PDF ber-TTD → unduh PDF; jika tidak → unduh PNG
+    // Route: dosen.ttd.unduh, admin.ttd.unduh, mahasiswa.ttd.unduh
     public function unduh(TandaTangan $tandaTangan)
     {
-        $user = auth()->user();
+        // Prioritas: PDF ber-TTD
+        if (
+            !empty($tandaTangan->path_pdf_ttd) &&
+            Storage::disk('local')->exists($tandaTangan->path_pdf_ttd)
+        ) {
+            return Storage::disk('local')->download(
+                $tandaTangan->path_pdf_ttd,
+                'dokumen-ttd-' . $tandaTangan->pengajuan->kode . '.pdf'
+            );
+        }
 
-        $boleh = $user->isAdmin()
-            || $user->id === $tandaTangan->dosen_id
-            || $user->id === $tandaTangan->pengajuan->mahasiswa_id;
-
-        abort_if(!$boleh, 403);
-        abort_if(!Storage::disk('local')->exists($tandaTangan->path_file), 404, 'File tidak ditemukan.');
+        // Fallback: PNG signature
+        abort_unless(Storage::disk('local')->exists($tandaTangan->path_file), 404);
 
         return Storage::disk('local')->download(
             $tandaTangan->path_file,
-            'TTD_' . $tandaTangan->pengajuan->kode . '_' . $tandaTangan->nama_file
+            $tandaTangan->nama_file ?? 'tanda-tangan.png'
         );
     }
 
-    /**
-     * Hapus TTD (dosen mau gambar ulang, atau admin reset).
-     * DELETE /dosen/ttd/{tandaTangan}
-     */
+    // ── Hapus TTD ─────────────────────────────────────────────
     public function destroy(TandaTangan $tandaTangan)
     {
-        $user = auth()->user();
+        Storage::disk('local')->delete($tandaTangan->path_file);
 
-        abort_if(
-            !$user->isAdmin() && $user->id !== $tandaTangan->dosen_id,
-            403,
-            'Tidak punya izin menghapus tanda tangan ini.'
-        );
+        if ($tandaTangan->path_pdf_ttd) {
+            Storage::disk('local')->delete($tandaTangan->path_pdf_ttd);
+        }
 
-        $tandaTangan->hapusFile();
         $tandaTangan->delete();
 
-        return back()->with('success', 'Tanda tangan dihapus. Silakan menggambar atau unggah ulang.');
-    }
-
-    // ── Private helper ────────────────────────────────────────
-
-    private function authorizeDosen(Pengajuan $pengajuan): void
-    {
-        abort_if(!auth()->user()->isDosen(), 403, 'Hanya dosen yang dapat menandatangani.');
-        abort_if(
-            $pengajuan->dosen_id !== auth()->id(),
-            403,
-            'Pengajuan ini tidak ditugaskan kepada Anda.'
-        );
-        abort_if(
-            $pengajuan->status !== 'dosen_ttd',
-            422,
-            'Pengajuan ini tidak dalam tahap TTD Dosen.'
-        );
+        return back()->with('success', 'TTD berhasil dihapus.');
     }
 }

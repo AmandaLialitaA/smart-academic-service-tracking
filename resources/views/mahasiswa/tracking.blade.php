@@ -141,8 +141,7 @@
 
                         @if($log->user)
                         <div class="activity-note">
-                            Oleh: {{ $log->user->name }}
-                            ({{ ucfirst($log->actor_role ?? 'sistem') }})
+                            Oleh: {{ ucfirst($log->actor_role ?? 'sistem') }}
                         </div>
                         @endif
                     </div>
@@ -155,15 +154,6 @@
         </div>
 
         <div class="tracking-right">
-            <div class="info-card info-card--purple">
-                <div class="info-card-title">📍 LOKASI PENGAMBILAN</div>
-                <p>Layanan dilakukan di loket resmi Biro Administrasi Akademik (BAA) UMS.</p>
-                <div class="loket-box">
-                    <div class="loket-label">LOKET PELAYANAN:</div>
-                    <div class="loket-val">Gedung Siti Walidah, Lantai 2</div>
-                    <div class="loket-jam">Jam Operasional: 08.00 – 15.00 WIB</div>
-                </div>
-            </div>
             <div class="info-card info-card--teal">
                 <div class="info-card-title">⚠️ PENTING!</div>
                 <ul class="penting-list">

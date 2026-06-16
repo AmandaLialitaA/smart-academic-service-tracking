@@ -11,7 +11,7 @@
     <div class="da-header">
         <div>
             <h1 class="da-title">ANTRIAN VERIFIKASI</h1>
-            <p class="da-subtitle">Dokumen yang menunggu verifikasi Admin BAA.</p>
+            <p class="da-subtitle">Dokumen yang menunggu verifikasi Admin.</p>
         </div>
     </div>
 

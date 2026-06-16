@@ -57,8 +57,8 @@ class AuthController extends Controller
         ];
 
         if ($role === 'mahasiswa') {
-            $rules['nim'] = ['required', 'string', 'max:20', 'unique:users,nim'];
-            $rules['prodi'] = ['required', 'string', 'max:255'];
+            $rules['nim']      = ['required', 'string', 'max:20', 'unique:users,nim'];
+            $rules['prodi']    = ['required', 'string', 'max:255'];
             $rules['semester'] = ['required', 'integer', 'min:1', 'max:14'];
         }
 
@@ -72,8 +72,8 @@ class AuthController extends Controller
         ];
 
         if ($data['role'] === 'mahasiswa') {
-            $userData['nim'] = $data['nim'];
-            $userData['prodi'] = $data['prodi'];
+            $userData['nim']      = $data['nim'];
+            $userData['prodi']    = $data['prodi'];
             $userData['semester'] = $data['semester'];
         }
 
@@ -150,7 +150,7 @@ class AuthController extends Controller
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user, string $password) {
                 $user->forceFill([
-                    'password' => Hash::make($password),
+                    'password'       => Hash::make($password),
                     'remember_token' => Str::random(60),
                 ])->save();
 

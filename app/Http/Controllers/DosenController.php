@@ -84,15 +84,22 @@ class DosenController extends Controller
     }
 
     public function show(Pengajuan $pengajuan)
-    {
-        if ($pengajuan->dosen_id !== auth()->id()) {
-            abort(403, 'Pengajuan ini tidak ditugaskan kepada Anda.');
-        }
-
-        $pengajuan->load(['mahasiswa', 'dokumen', 'log.user', 'tandaTangan']);
-
-        return view('dosen.detail-pengajuan', compact('pengajuan'));
+{
+    if ($pengajuan->dosen_id !== auth()->id()) {
+        abort(403, 'Pengajuan ini tidak ditugaskan kepada Anda.');
     }
+
+    $pengajuan->load(['mahasiswa', 'dokumen', 'log.user', 'tandaTangan']);
+
+    $dokumenList = $pengajuan->dokumen->map(fn($doc) => [
+        'nama'  => $doc->nama_file_asli,
+        'mime'  => $doc->mime_type,
+        'url'   => route('dokumen.show', $doc),
+        'unduh' => route('dokumen.download', $doc),
+    ]);
+
+    return view('dosen.detail-pengajuan', compact('pengajuan', 'dokumenList'));
+}
 
     public function approve(Request $request, Pengajuan $pengajuan)
     {

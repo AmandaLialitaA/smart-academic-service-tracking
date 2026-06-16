@@ -19,8 +19,15 @@ class TandaTangan extends Model
         'dosen_id',
         'path_file',
         'nama_file',
+        'path_pdf_ttd',      // ← baru: PDF ber-TTD
+        'catatan',           // ← baru: catatan dosen
         'ip_address',
         'ditandatangani_pada',
+        'ttd_page',          // ← baru: koordinat
+        'ttd_x_pct',
+        'ttd_y_pct',
+        'ttd_w_pct',
+        'ttd_h_pct',
     ];
 
     protected $casts = [
@@ -41,15 +48,25 @@ class TandaTangan extends Model
 
     // ── Helpers ───────────────────────────────────────────────
 
-    /** Route untuk stream gambar TTD (file disimpan di disk local, tidak publik) */
+    /** Route untuk stream gambar TTD */
     public function urlGambar(): string
     {
         return route('dosen.ttd.gambar', $this->id);
     }
 
-    /** Hapus file PNG dari storage saat record dihapus */
+    /** Apakah sudah ada PDF ber-TTD */
+    public function hasPdf(): bool
+    {
+        return !empty($this->path_pdf_ttd)
+            && Storage::disk('local')->exists($this->path_pdf_ttd);
+    }
+
+    /** Hapus semua file terkait dari storage */
     public function hapusFile(): void
     {
         Storage::disk('local')->delete($this->path_file);
+        if ($this->path_pdf_ttd) {
+            Storage::disk('local')->delete($this->path_pdf_ttd);
+        }
     }
 }

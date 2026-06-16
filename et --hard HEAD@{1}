@@ -1,0 +1,19 @@
+[33m1d1bd24[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: pull origin master: Fast-forward
+[33m4de952e[m HEAD@{1}: pull origin master: Fast-forward
+[33m8a9bf7c[m HEAD@{2}: checkout: moving from master to master
+[33m8a9bf7c[m HEAD@{3}: commit: modified
+[33m30b62f7[m HEAD@{4}: commit: modified
+[33me6fd7be[m HEAD@{5}: commit: modified
+[33m01740ab[m HEAD@{6}: pull origin master: Fast-forward
+[33me5898f6[m HEAD@{7}: checkout: moving from master to master
+[33me5898f6[m HEAD@{8}: pull origin master: Fast-forward
+[33m4f87ec8[m HEAD@{9}: checkout: moving from master to master
+[33m4f87ec8[m HEAD@{10}: pull origin master: Fast-forward
+[33m44ed3bf[m HEAD@{11}: checkout: moving from master to master
+[33m44ed3bf[m HEAD@{12}: pull origin master: Fast-forward
+[33m6c0aa42[m HEAD@{13}: pull origin master: Fast-forward
+[33m7410457[m HEAD@{14}: pull origin master: Fast-forward
+[33me283f07[m HEAD@{15}: commit (merge): Merge branch 'master' of https://github.com/AmandaLialitaA/smart-academic-service-tracking
+[33me6d23da[m HEAD@{16}: commit: modified
+[33m3f535ff[m HEAD@{17}: commit: create backend
+[33m9536b1b[m HEAD@{18}: clone: from https://github.com/AmandaLialitaA/smart-academic-service-tracking.git
