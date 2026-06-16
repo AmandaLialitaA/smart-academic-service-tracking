@@ -391,7 +391,7 @@ if (dokumenList.length > 0) tampilDokumen(0);
         signCanvas.width  = rect.width  * ratio;
         signCanvas.height = rect.height * ratio;
         signCtx.scale(ratio, ratio);
-        signCtx.strokeStyle = '#1a1a2e';
+        signCtx.strokeStyle = '#1a56db';
         signCtx.lineWidth   = 2;
         signCtx.lineCap     = 'round';
         signCtx.lineJoin    = 'round';
