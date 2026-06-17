@@ -42,10 +42,10 @@
 
         <form class="login-form" method="POST" action="{{ url('login/mahasiswa') }}">
             @csrf
-            <label for="email" class="form-label">EMAIL STUDENT</label>
+            <label for="email" class="form-label">EMAIL ATAU NIM</label>
             <div class="input-group">
                 <span class="input-icon">👤</span>
-                <input type="email" id="email" name="email" placeholder="mahasiswa@ac.id" value="{{ old('email') }}" required>
+                <input type="text" id="email" name="email" placeholder="mahasiswa@ac.id atau NIM" value="{{ old('email') }}" required>
             </div>
             <label for="password" class="form-label">PASSWORD <a href="{{ route('password.request') }}?role=mahasiswa" class="forgot">LUPA PASSWORD?</a></label>
             <div class="input-group" style="position:relative;">

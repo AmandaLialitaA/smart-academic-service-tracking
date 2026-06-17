@@ -170,32 +170,47 @@ class AuthController extends Controller
     private function processLogin(Request $request, string $role)
     {
         $request->validate([
-            'email'    => ['required', 'email'],
+            'email'    => ['required', 'string'],
             'password' => ['required'],
         ], [
-            'email.required'    => 'Email wajib diisi.',
-            'email.email'       => 'Format email tidak valid.',
+            'email.required'    => match ($role) {
+                'mahasiswa' => 'Email atau NIM wajib diisi.',
+                'dosen'     => 'Email atau NIDN wajib diisi.',
+                default     => 'Email wajib diisi.',
+            },
             'password.required' => 'Password wajib diisi.',
         ]);
 
-        $credentials = $request->only('email', 'password');
+        $login    = $request->input('email');
+        $password = $request->input('password');
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('email', $login)->first();
+        } else {
+            $user = match ($role) {
+                'mahasiswa' => User::where('nim', $login)->first(),
+                'dosen'     => User::where('nidn', $login)->first(),
+                default     => null,
+            };
+        }
+
+        if (!$user || !Hash::check($password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => 'Email atau password salah.',
+                'email' => match ($role) {
+                    'mahasiswa' => 'Email / NIM atau password salah.',
+                    'dosen'     => 'Email / NIDN atau password salah.',
+                    default     => 'Email atau password salah.',
+                },
             ]);
         }
 
-        $user = Auth::user();
-
         if ($user->role !== $role) {
-            Auth::logout();
-            $request->session()->invalidate();
             throw ValidationException::withMessages([
                 'email' => "Akun ini terdaftar sebagai {$user->role}, bukan {$role}.",
             ]);
         }
 
+        Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
         return match ($user->role) {

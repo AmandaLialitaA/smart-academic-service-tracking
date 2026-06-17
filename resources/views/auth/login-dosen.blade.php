@@ -38,12 +38,12 @@
 
         <form class="login-form" method="POST" action="{{ url('login/dosen') }}">
             @csrf
-            <label for="email" class="form-label">EMAIL INSTITUSI</label>
+            <label for="email" class="form-label">EMAIL ATAU NIDN</label>
             <div class="input-group">
                 <span class="input-icon">
                     <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" fill="#222"/></svg>
                 </span>
-                <input type="email" id="email" name="email" placeholder="dosen@ac.id" value="{{ old('email') }}" required>
+                <input type="text" id="email" name="email" placeholder="dosen@ac.id atau NIDN" value="{{ old('email') }}" required>
             </div>
             <label for="password" class="form-label">KATA SANDI</label>
             <div class="input-group" style="position:relative;">
