@@ -12,9 +12,7 @@ export default defineConfig({
                 'resources/css/dashboard-admin.css',
                 'resources/css/pengajuan.css',
                 'resources/css/tracking.css',
-                'resources/css/upload.css',
                 'resources/css/detail-pengajuan-dosen.css',
-                'resources/css/verifikasi-admin.css',  // ← tambahkan ini
                 'resources/js/app.js',
             ],
             refresh: true,
