@@ -97,3 +97,12 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/kontak-admin', fn () => view('auth.kontak-admin'))->name('kontak.admin');
+
+// group dosen
+Route::get('/ttd/{tandaTangan}/pdf', [TandaTanganController::class, 'unduhPdfTtd'])->name('ttd.pdf');
+
+// group mahasiswa
+Route::get('/ttd/{tandaTangan}/pdf', [TandaTanganController::class, 'unduhPdfTtd'])->name('mahasiswa.ttd.pdf');
+
+// group admin
+Route::get('/ttd/{tandaTangan}/pdf', [TandaTanganController::class, 'unduhPdfTtd'])->name('ttd.pdf');
