@@ -12,6 +12,11 @@
         <div class="dosen-header-left">
             <h1 class="dosen-title">DASHBOARD <span class="title-purple">DOSEN</span></h1>
             <p class="dosen-sub">Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>. Anda memiliki <a href="{{ route('dosen.menunggu') }}" class="link-purple">{{ $stats['menunggu'] }} pengajuan</a> yang menunggu TTD.</p>
+            @if(auth()->user()->nidn)
+                <p class="dosen-sub" style="margin-top:4px;">
+                    NIDN: <strong>{{ auth()->user()->nidn }}</strong>
+                </p>
+            @endif
         </div>
     </div>
 

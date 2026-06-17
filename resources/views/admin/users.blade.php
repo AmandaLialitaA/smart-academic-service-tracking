@@ -11,18 +11,7 @@
     <h1 class="da-title">KELOLA PENGGUNA</h1>
     <p class="da-subtitle">Buat, edit, atau hapus akun mahasiswa, dosen, dan admin.</p>
 
-    @if($errors->any())
-        <div style="background:#fff6f6;border:2px solid #E53935;padding:12px 16px;margin:12px 0;color:#a00;border-radius:6px;">
-            <strong>Terdapat kesalahan:</strong>
-            <ul style="margin:6px 0 0 18px;">
-                @foreach($errors->all() as $err)
-                    <li>{{ $err }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    {{-- POINT 2: Form buat user baru --}}
+    {{-- Form buat user baru --}}
     <div style="border:2px solid #a259e6;padding:20px;border-radius:8px;margin-bottom:24px;background:#faf5ff;">
         <h3 style="margin-bottom:14px;">➕ Buat Akun Baru</h3>
         <form method="POST" action="{{ route('admin.users.store') }}">
@@ -48,7 +37,7 @@
                 </div>
                 <div>
                     <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">Role <span style="color:#E53935;">*</span></label>
-                    <select name="role" required id="role-select"
+                    <select name="role" required id="role-select-create"
                             style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
                         <option value="mahasiswa" {{ old('role') === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
                         <option value="dosen" {{ old('role') === 'dosen' ? 'selected' : '' }}>Dosen</option>
@@ -57,8 +46,8 @@
                 </div>
             </div>
 
-            {{-- Field tambahan untuk mahasiswa --}}
-            <div id="mahasiswa-fields" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+            {{-- Field mahasiswa --}}
+            <div id="mahasiswa-fields-create" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
                 <div>
                     <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">NIM</label>
                     <input type="text" name="nim" value="{{ old('nim') }}"
@@ -76,6 +65,16 @@
                     <input type="number" name="semester" value="{{ old('semester') }}" min="1" max="14"
                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;"
                            placeholder="1-14">
+                </div>
+            </div>
+
+            {{-- Field dosen --}}
+            <div id="dosen-fields-create" style="display:none;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">NIDN</label>
+                    <input type="text" name="nidn" value="{{ old('nidn') }}"
+                           style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;"
+                           placeholder="Nomor Induk Dosen Nasional">
                 </div>
             </div>
 
@@ -97,7 +96,7 @@
                     <th style="padding:10px 12px;font-size:12px;">NAMA</th>
                     <th style="padding:10px 12px;font-size:12px;">EMAIL</th>
                     <th style="padding:10px 12px;font-size:12px;">ROLE</th>
-                    <th style="padding:10px 12px;font-size:12px;">NIM/INFO</th>
+                    <th style="padding:10px 12px;font-size:12px;">NIM / NIDN / INFO</th>
                     <th style="padding:10px 12px;font-size:12px;">AKSI</th>
                 </tr>
             </thead>
@@ -118,14 +117,34 @@
                             {{ strtoupper($u->role) }}
                         </span>
                     </td>
-                    <td style="padding:10px 12px;font-size:12px;color:#888;">
-                        @if($u->nim) NIM: {{ $u->nim }} @endif
-                        @if($u->prodi) · {{ $u->prodi }} @endif
-                        @if($u->semester) · Sem {{ $u->semester }} @endif
+                    <td style="padding:10px 12px;font-size:12px;color:#555;">
+                        @if($u->role === 'dosen')
+                            @if($u->nidn)
+                                <span style="background:#e0f2fe;color:#075985;padding:2px 7px;border-radius:10px;font-weight:600;">NIDN: {{ $u->nidn }}</span>
+                            @else
+                                <span style="color:#bbb;font-style:italic;">NIDN belum diisi</span>
+                            @endif
+                        @elseif($u->role === 'mahasiswa')
+                            @if($u->nim) <span>NIM: {{ $u->nim }}</span> @endif
+                            @if($u->prodi) · {{ $u->prodi }} @endif
+                            @if($u->semester) · Sem {{ $u->semester }} @endif
+                            @if(!$u->nim && !$u->prodi && !$u->semester)
+                                <span style="color:#bbb;font-style:italic;">Belum ada info</span>
+                            @endif
+                        @else
+                            <span style="color:#bbb;">—</span>
+                        @endif
                     </td>
                     <td style="padding:10px 12px;">
                         <div style="display:flex;gap:6px;align-items:center;">
-                            {{-- POINT 3: hapus akun dari DB --}}
+                            {{-- Tombol Edit --}}
+                            <button type="button"
+                                    onclick="bukaModalEdit({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ addslashes($u->email) }}', '{{ $u->role }}', '{{ $u->nim }}', '{{ $u->nidn }}', '{{ addslashes($u->prodi ?? '') }}', '{{ $u->semester }}')"
+                                    style="padding:5px 10px;background:#2563eb;color:#fff;border:none;cursor:pointer;border-radius:4px;font-size:12px;">
+                                ✏️ Edit
+                            </button>
+
+                            {{-- Tombol Hapus --}}
                             @if($u->id !== auth()->id())
                             <form method="POST" action="{{ route('admin.users.destroy', $u) }}"
                                   onsubmit="return confirm('Hapus akun {{ addslashes($u->name) }} dari database? Tindakan ini tidak dapat dibatalkan.')">
@@ -153,16 +172,142 @@
     </div>
 </div>
 
+{{-- ── Modal Edit User ─────────────────────────────────────────────────────── --}}
+<div id="modal-edit" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:10px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+        <h3 style="margin:0 0 18px;">✏️ Edit Pengguna: <span id="edit-nama-label"></span></h3>
+
+        <form id="form-edit" method="POST">
+            @csrf
+            @method('PUT')
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">Nama Lengkap <span style="color:#E53935;">*</span></label>
+                    <input type="text" name="name" id="edit-name" required
+                           style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">Email <span style="color:#E53935;">*</span></label>
+                    <input type="email" name="email" id="edit-email" required
+                           style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">Password Baru <span style="color:#888;font-weight:400;">(kosongkan jika tidak diubah)</span></label>
+                    <input type="password" name="password" minlength="8"
+                           style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;"
+                           placeholder="Min. 8 karakter">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">Role <span style="color:#E53935;">*</span></label>
+                    <select name="role" id="edit-role" required
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+                        <option value="mahasiswa">Mahasiswa</option>
+                        <option value="dosen">Dosen</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+
+            {{-- Field dosen: NIDN --}}
+            <div id="dosen-fields-edit" style="display:none;margin-bottom:12px;">
+                <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">NIDN</label>
+                <input type="text" name="nidn" id="edit-nidn"
+                       style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;"
+                       placeholder="Nomor Induk Dosen Nasional">
+                <p style="font-size:11px;color:#888;margin:4px 0 0;">Nomor Induk Dosen Nasional (10 digit). Kosongkan jika belum ada.</p>
+            </div>
+
+            {{-- Field mahasiswa --}}
+            <div id="mahasiswa-fields-edit" style="display:none;margin-bottom:12px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">NIM</label>
+                        <input type="text" name="nim" id="edit-nim"
+                               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;"
+                               placeholder="NIM mahasiswa">
+                    </div>
+                    <div>
+                        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">Program Studi</label>
+                        <input type="text" name="prodi" id="edit-prodi"
+                               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;"
+                               placeholder="Contoh: Informatika">
+                    </div>
+                    <div>
+                        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:3px;">Semester</label>
+                        <input type="number" name="semester" id="edit-semester" min="1" max="14"
+                               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:13px;"
+                               placeholder="1-14">
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+                <button type="button" onclick="tutupModalEdit()"
+                        style="padding:9px 20px;background:#f0f0f0;color:#333;border:1px solid #ccc;cursor:pointer;border-radius:4px;font-size:13px;">
+                    Batal
+                </button>
+                <button type="submit"
+                        style="padding:9px 20px;background:#a259e6;color:#fff;border:none;cursor:pointer;border-radius:4px;font-weight:700;font-size:13px;">
+                    💾 Simpan Perubahan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
-    // Toggle field mahasiswa berdasarkan role yang dipilih
-    const roleSelect = document.getElementById('role-select');
-    const mhsFields  = document.getElementById('mahasiswa-fields');
+// ── Toggle field create form ──────────────────────────────────────────────────
+const roleSelectCreate  = document.getElementById('role-select-create');
+const mhsFieldsCreate   = document.getElementById('mahasiswa-fields-create');
+const dosenFieldsCreate = document.getElementById('dosen-fields-create');
 
-    function toggleMhsFields() {
-        mhsFields.style.display = roleSelect.value === 'mahasiswa' ? 'grid' : 'none';
-    }
+function toggleFieldsCreate() {
+    const role = roleSelectCreate.value;
+    mhsFieldsCreate.style.display   = role === 'mahasiswa' ? 'grid' : 'none';
+    dosenFieldsCreate.style.display  = role === 'dosen'     ? 'grid' : 'none';
+}
+roleSelectCreate.addEventListener('change', toggleFieldsCreate);
+toggleFieldsCreate();
 
-    roleSelect.addEventListener('change', toggleMhsFields);
-    toggleMhsFields(); // init
+// ── Modal Edit ────────────────────────────────────────────────────────────────
+const modal         = document.getElementById('modal-edit');
+const formEdit      = document.getElementById('form-edit');
+const editRole      = document.getElementById('edit-role');
+const dosenEdit     = document.getElementById('dosen-fields-edit');
+const mhsEdit       = document.getElementById('mahasiswa-fields-edit');
+
+function toggleFieldsEdit() {
+    const role = editRole.value;
+    dosenEdit.style.display = role === 'dosen'     ? 'block' : 'none';
+    mhsEdit.style.display   = role === 'mahasiswa' ? 'block' : 'none';
+}
+
+editRole.addEventListener('change', toggleFieldsEdit);
+
+function bukaModalEdit(id, name, email, role, nim, nidn, prodi, semester) {
+    document.getElementById('edit-nama-label').textContent = name;
+    document.getElementById('edit-name').value    = name;
+    document.getElementById('edit-email').value   = email;
+    editRole.value                                 = role;
+    document.getElementById('edit-nidn').value    = nidn || '';
+    document.getElementById('edit-nim').value     = nim || '';
+    document.getElementById('edit-prodi').value   = prodi || '';
+    document.getElementById('edit-semester').value = semester || '';
+
+    formEdit.action = '/admin/users/' + id;
+
+    toggleFieldsEdit();
+    modal.style.display = 'flex';
+}
+
+function tutupModalEdit() {
+    modal.style.display = 'none';
+}
+
+// Tutup modal klik di luar
+modal.addEventListener('click', function(e) {
+    if (e.target === modal) tutupModalEdit();
+});
 </script>
 @endsection

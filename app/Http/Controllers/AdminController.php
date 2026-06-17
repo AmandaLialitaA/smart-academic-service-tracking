@@ -118,14 +118,12 @@ class AdminController extends Controller
         ]);
     }
 
-    // POINT 4 FIX: tolak pengajuan admin — izinkan dari status submitted DAN admin_verifikasi
     public function rejectPengajuan(Request $request, Pengajuan $pengajuan)
     {
         $request->validate([
             'catatan' => ['required', 'string', 'min:5', 'max:500'],
         ]);
 
-        // Cek status yang boleh ditolak admin: submitted atau admin_verifikasi
         if (!in_array($pengajuan->status, ['submitted', 'admin_verifikasi'])) {
             return back()->with('error', 'Pengajuan tidak dapat ditolak pada tahap ini. Status saat ini: ' . ($pengajuan->status));
         }
@@ -201,7 +199,6 @@ class AdminController extends Controller
         }
     }
 
-    // POINT 8: checklist selesai — admin konfirmasi selesai, mahasiswa bisa unduh surat ber-TTD
     public function checklist(Request $request, Pengajuan $pengajuan)
     {
         $request->validate([
@@ -233,7 +230,7 @@ class AdminController extends Controller
         return view('admin.verifikasi', compact('pengajuan', 'daftarDosen'));
     }
 
-    // ── POINT 2: Buat user baru dari panel admin ──────────────────────────────
+    // ── Kelola Pengguna ───────────────────────────────────────────────────────
 
     public function usersIndex()
     {
@@ -242,34 +239,39 @@ class AdminController extends Controller
     }
 
     public function storeUser(Request $request)
-{
-    $rules = [
-        'name'     => ['required', 'string', 'max:255'],
-        'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
-        'password' => ['required', 'string', 'min:8'],
-        'role'     => ['required', 'in:mahasiswa,dosen,admin'],
-    ];
+    {
+        $rules = [
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
+            'role'     => ['required', 'in:mahasiswa,dosen,admin'],
+        ];
 
-    if ($request->role === 'mahasiswa') {
-        $rules['nim']      = ['nullable', 'string', 'max:20', 'unique:users,nim'];
-        $rules['prodi']    = ['nullable', 'string', 'max:255'];
-        $rules['semester'] = ['nullable', 'integer', 'min:1', 'max:14'];
+        if ($request->role === 'mahasiswa') {
+            $rules['nim']      = ['nullable', 'string', 'max:20', 'unique:users,nim'];
+            $rules['prodi']    = ['nullable', 'string', 'max:255'];
+            $rules['semester'] = ['nullable', 'integer', 'min:1', 'max:14'];
+        }
+
+        if ($request->role === 'dosen') {
+            $rules['nidn'] = ['nullable', 'string', 'max:20', 'unique:users,nidn'];
+        }
+
+        $data = $request->validate($rules);
+
+        User::create([
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role'     => $data['role'],
+            'nim'      => $data['role'] === 'mahasiswa' ? ($data['nim'] ?? null) : null,
+            'nidn'     => $data['role'] === 'dosen'     ? ($data['nidn'] ?? null) : null,
+            'prodi'    => $data['role'] === 'mahasiswa' ? ($data['prodi'] ?? null) : null,
+            'semester' => $data['role'] === 'mahasiswa' ? ($data['semester'] ?? null) : null,
+        ]);
+
+        return back()->with('success', 'Akun ' . $data['name'] . ' berhasil dibuat.');
     }
-
-    $data = $request->validate($rules);
-
-    User::create([
-        'name'     => $data['name'],
-        'email'    => $data['email'],
-        'password' => Hash::make($data['password']),
-        'role'     => $data['role'],
-        'nim'      => $data['role'] === 'mahasiswa' ? ($data['nim'] ?? null) : null,
-        'prodi'    => $data['role'] === 'mahasiswa' ? ($data['prodi'] ?? null) : null,
-        'semester' => $data['role'] === 'mahasiswa' ? ($data['semester'] ?? null) : null,
-    ]);
-
-    return back()->with('success', 'Akun ' . $data['name'] . ' berhasil dibuat.');
-}
 
     public function updateUser(Request $request, User $user)
     {
@@ -283,12 +285,29 @@ class AdminController extends Controller
             $rules['password'] = [PasswordRule::min(8)];
         }
 
+        // Validasi NIDN untuk dosen (abaikan nilai milik user itu sendiri)
+        if ($request->role === 'dosen') {
+            $rules['nidn'] = ['nullable', 'string', 'max:20', 'unique:users,nidn,' . $user->id];
+        }
+
+        // Validasi NIM untuk mahasiswa
+        if ($request->role === 'mahasiswa') {
+            $rules['nim']      = ['nullable', 'string', 'max:20', 'unique:users,nim,' . $user->id];
+            $rules['prodi']    = ['nullable', 'string', 'max:255'];
+            $rules['semester'] = ['nullable', 'integer', 'min:1', 'max:14'];
+        }
+
         $data = $request->validate($rules);
 
         $updateData = [
             'name'  => $data['name'],
             'email' => $data['email'],
             'role'  => $data['role'],
+            // Reset field yang tidak relevan dengan role baru
+            'nidn'     => $data['role'] === 'dosen'     ? ($request->nidn ?: null)     : null,
+            'nim'      => $data['role'] === 'mahasiswa' ? ($request->nim ?: null)      : null,
+            'prodi'    => $data['role'] === 'mahasiswa' ? ($request->prodi ?: null)    : null,
+            'semester' => $data['role'] === 'mahasiswa' ? ($request->semester ?: null) : null,
         ];
 
         if ($request->filled('password')) {
@@ -300,17 +319,13 @@ class AdminController extends Controller
         return back()->with('success', 'Data user ' . $user->name . ' berhasil diperbarui.');
     }
 
-    // POINT 3: Hapus akun — benar-benar hapus dari DB (hard delete)
     public function destroyUser(User $user)
     {
-        // Jangan bisa hapus akun diri sendiri
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Tidak dapat menghapus akun Anda sendiri.');
         }
 
         $nama = $user->name;
-
-        // Hard delete — benar-benar hapus dari database
         $user->delete();
 
         return back()->with('success', "Akun {$nama} berhasil dihapus dari database.");
