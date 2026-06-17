@@ -15,6 +15,9 @@
         <div class="user-info">
             <span>Universitas Muhammadiyah Surakarta</span>
             <span>{{ auth()->user()->prodi ?? 'Program Studi' }} · Semester {{ auth()->user()->semester ?? '-' }}</span>
+            @if(auth()->user()->nim)
+                <span>NIM: {{ auth()->user()->nim }}</span>
+            @endif
         </div>
     </div>
     <a href="{{ route('mahasiswa.pengajuan') }}" class="btn-ajukan-layanan">+ Ajukan Layanan Baru</a>

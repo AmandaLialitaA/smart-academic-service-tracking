@@ -97,4 +97,4 @@
     </div>
 </div>
 <footer class="dashboard-footer">© 2026 Universitas Muhammadiyah Surakarta. Smart Academic Service Tracking.</footer>
-@endsection
+@endsection 

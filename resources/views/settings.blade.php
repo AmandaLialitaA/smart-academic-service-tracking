@@ -30,6 +30,20 @@
                 <strong>Nama:</strong> {{ auth()->user()->name }}<br>
                 <strong>Email:</strong> {{ auth()->user()->email }}<br>
                 <strong>Peran:</strong> {{ ucfirst(auth()->user()->role ?? 'Pengguna') }}
+                @if(auth()->user()->isDosen() && auth()->user()->nidn)
+                    <br><strong>NIDN:</strong> {{ auth()->user()->nidn }}
+                @endif
+                @if(auth()->user()->isMahasiswa())
+                    @if(auth()->user()->nim)
+                        <br><strong>NIM:</strong> {{ auth()->user()->nim }}
+                    @endif
+                    @if(auth()->user()->prodi)
+                        <br><strong>Program Studi:</strong> {{ auth()->user()->prodi }}
+                    @endif
+                    @if(auth()->user()->semester)
+                        <br><strong>Semester:</strong> {{ auth()->user()->semester }}
+                    @endif
+                @endif
             </div>
 
 
